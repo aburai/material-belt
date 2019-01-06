@@ -1,0 +1,33 @@
+{
+  "name": "material-belt",
+  "version": "1.4.5",
+  "description": "Extend Material Design Lite library [Material Design Lite](https://github.com/google/material-design-lite)",
+  "main": "material-belt.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aburai/material-belt.git"
+  },
+  "keywords": [
+    "material design",
+    "material design lite",
+    "mdl",
+    "material components"
+  ],
+  "author": {
+    "name": "André Bunse (aburai)",
+    "email": "andre.bunse@gmail.com",
+    "url": "https://github.com/aburai"
+  },
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/aburai/material-belt/issues"
+  },
+  "homepage": "https://github.com/aburai/material-belt#readme",
+  "devDependencies": {
+    "lodash": "^4.17.11",
+    "material-design-lite": "^1.3.0"
+  }
+}
