@@ -298,12 +298,22 @@ dialog.mdl-dialog--polyfill {
  * Helper Material Dialog
  */
 .mdl-dialog > .mdl-dialog__title {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 500;
+  color: rgba(0, 0, 0, 0.87);
 }
 .mdl-dialog__title img.centered {
   display: block;
   margin: 0 auto;
+}
+.mdl-dialog > .mdl-dialog__content {
+    color: rgba(0, 0, 0, 0.60);
+}
+.mdl-dialog > .mdl-dialog__subtitle {
+  padding: 24px 24px 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.60);
 }
 
 /*
@@ -570,11 +580,8 @@ dialog.mdl-dialog--polyfill {
 .mdl-actionbar.mdl-actionbar--light .mdl-actionbar__group.mdl--right {
   border-left: 1px solid #CCC;
 }
-.mdl-actionbar.mdl-actionbar--light .mdl-select {
-  background-color: #FFF;
-}
 
-  /* Dark Theme */
+/* Dark Theme */
 .mdl-actionbar.mdl-actionbar--dark {
   background-color: rgba(32, 32, 32, 1);
 }
@@ -698,7 +705,7 @@ dialog.mdl-dialog--polyfill {
   pointer-events: none;
 }
 .mdl-select.mdl-select--notpadded .mdl-textfield {
-  padding: 2px 2px 0 8px; /* padding left as buttons in dropdown menu */
+  padding: 4px 2px 0 8px; /* padding left as buttons in dropdown menu */
 }
 
 .mdl-select__dropdown {
@@ -749,7 +756,7 @@ dialog.mdl-dialog--polyfill {
   user-select: none;
 }
 .mdl-select.mdl-select--notpadded .mdl-select__arrow {
-  top: 4px;
+  top: 6px;
 }
 .mdl-select.mdl-select--disabled .mdl-select__arrow {
   color: rgba(0, 0, 0, 0.3);

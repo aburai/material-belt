@@ -1,5 +1,5 @@
 /**
- * Material Belt - v1.4.6 (c) 2016-2019; aburai
+ * Material Belt - v1.4.7 (c) 2016-2019; aburai
  *                  _            _       _   _          _ _
  *  _ __ ___   __ _| |_ ___ _ __(_) __ _| | | |__   ___| | |_
  * | '_ ` _ \ / _` | __/ _ \ '__| |/ _` | | | '_ \ / _ \ | __|
@@ -8,7 +8,7 @@
  *
  * @file material-belt.js
  * @author André Bunse (aburai@github.com) <andre.bunse@gmail.com>
- * @version 1.4.6
+ * @version 1.4.7
  * @license Material Belt is released under the ISC license.
  *
  * Extend the mdl library from Jason Mayes.
@@ -36,7 +36,7 @@
 
   var
   WATCHDOG = {
-    __version: '1.4.6',
+    __version: '1.4.7',
     __build: '@BUILD@',
     __buildDate: '@BUILDDATE@'
   },
@@ -146,7 +146,6 @@
       '<textarea class="mdl-textfield__input" id="<%= id %>" rows="<%= rows %>"></textarea>' +
       '<label class="mdl-textfield__label" for="<%= id %>"><%= label %></label>' +
       '<span class="mdl-textfield__error"></span>' +
-      '<span class="mdl-textfield__helper"></span>' +
       '</div>'
     ),
     list: _.template('<ul class="mdl-list"></ul>'),
@@ -212,7 +211,7 @@
     // params: title, content
     dialog: _.template('<dialog class="mdl-dialog">' +
       '<h4 class="mdl-dialog__title hidden"><%= title %></h4>' +
-      '<div class="mdl-dialog__content hidden" style="overflow:hidden">' +
+      '<div class="mdl-dialog__content" style="overflow:hidden">' +
         '<p><%= content %></p>' +
       '</div>' +
       '<div class="mdl-dialog__actions hidden">' +
@@ -437,11 +436,10 @@
       appendTo: '',
       value: '',
       floatLabel: true,
-      spellcheck: false,
+      spellCheck: false,
       date: false,
       overlay: false,
       clear: true,
-      resize: true,
       helper: '',
       i18n: {
         agree: 'Übernehmen',
@@ -597,7 +595,6 @@
     },
     popup: {
       title: '',
-      gridsize: [2, 8],
       on: {
         loaded: $.noop,
         close: $.noop
@@ -1132,7 +1129,7 @@
         $item = $(this).parent(),
         action = $item.attr('data-action'),
         $opt = $(this).children(':selected'),
-        actionCallback = _.get(ab, 'params.on.action');
+        actionCallback = _.go('params.on.action', ab);
 
       // sync selected option with action in the actionbar
       if (ab.$moreMenu) {
@@ -1287,10 +1284,10 @@
       action = this.actions[actionName],
       actionData = _.extend({ action: actionName }, data),
       bindTo,
-      actionCallback = _.get(this, 'params.on.action');
+      actionCallback = _.go('params.on.action', this);
 
     if (_.isFunction(actionCallback)) {
-      bindTo = _.get(action, 'bindTo') || action;
+      bindTo = _.go('bindTo', action) || action;
       // if callback return false, we break up
       if (this.params.returnData) {
         if (actionCallback.call(context || this, actionName, actionData) === false) {
@@ -1442,7 +1439,7 @@
       icon: true,
       title: action.title || action.tooltip,
       data: { uid: ab.name },
-      titlePosition: _.get(ab.params, 'tooltips.position') || 'bottom',
+      titlePosition: _.getObject('tooltips.position', ab.params) || 'bottom',
       disabled: true// create in disabled mode
     })
       .attr('data-action', action.name)
@@ -1719,7 +1716,7 @@
       )
     );
 
-    menuPositionClass = _.get(this, 'params.menu.position') === 'br' ? 'top-right' : 'bottom-right';
+    menuPositionClass = _.go('params.menu.position', this) === 'br' ? 'top-right' : 'bottom-right';
     this.$moreMenu = $(TEMPLATES.menu({ id: moreId, cls: 'mdl-menu--' + menuPositionClass }))
       .attr('data-uid', this.name)
       .appendTo($appendTo);
@@ -2212,14 +2209,11 @@
         });
       }
       else if (!cell && icon) {
-        if (td.button !== false) {
-          _.material.button({
-            appendTo: $td,
-            label: _.material.icon(icon),
-            icon: true
-          });
-        }
-        else $td.append(_.material.icon(icon));
+        _.material.button({
+          appendTo: $td,
+          label: _.material.icon(icon),
+          icon: true
+        });
         cellWidth = 32;
         cls = 'mdl-data-table__cell--icon-center';
         if (icon === 'warning') {
@@ -2231,7 +2225,7 @@
         cls = 'mdl-data-table__cell--icon-center';
       }
       else {
-        $td.append(cell);
+        $td.html(cell);
       }
 
       if (_.isObject(td) && td.cls) {
@@ -2867,8 +2861,8 @@
     if (params.name) {
       this.$sync.attr('name', params.name).val(params.value);
       this.prependAdd();
-      this.$container.find('.mdl-chip__input').on('keydown', function(event) {
-        if (event.code === 'Enter') {
+      this.$container.find('.mdl-chip__input').keydown(function(event) {
+        if (event.keyCode === 13) {
           event.preventDefault();
           var $mci = $(this), val = $mci.val();
           $mci.val('');
@@ -2972,7 +2966,7 @@
       });
 
     this.$container.prepend($chip);
-    this.$container.find('.mdl-chip__input').width(120).attr('placeholder', mchips.params.placeholder || 'Neues Stichwort');
+    this.$container.find('.mdl-chip__input').width(120).attr('placeholder', 'Neues Stichwort');
   };
 
   MChips.prototype.sync = function() {
@@ -2996,7 +2990,7 @@
       needle = ' ' + $.trim(val) + ' ',
       chipExists = this.$container.find('[data-value="'+val+'"]').length > 0;
 
-    return _.includes(currentValues, needle) && chipExists;
+    return window.s.contains(currentValues, needle) && chipExists;
   };
 
   // ========================================
@@ -3464,8 +3458,6 @@
      * @property {boolean} readonly - set input to readonly
      * @property {boolean} disabled - set input to disabled
      * @property {boolean} hidden - set input to hidden
-     * @property {boolean} spellcheck - activate spellcheck or not
-     * @property {boolean} resize=true - activate resizable (for textareas only)
      * @property {!number} tabindex - set input tabindex
      * @property {!number} rows - set rows > 1 to use textarea
      * @property {!number|!string} width=300 - set input width (ex. '100%')
@@ -3506,12 +3498,11 @@
       params.autofocus && $inp.prop('autofocus', true);
       params.readonly && $inp.prop('readonly', true);
       params.placeholder && $inp.attr('placeholder', params.placeholder);
-      $inp.prop('spellcheck', params.spellcheck);
+      $inp.prop('spellcheck', params.spellCheck);
       params.tabindex && $inp.attr('tabindex', params.tabindex);
       params.width && $tf.width(params.width) && $inp.width(params.width);
       params.cls && $tf.addClass(params.cls);
       params.helper && $tf.find('.mdl-textfield__helper').text(params.helper);
-      !params.resize && tpl_type === 'textarea' && $inp.addClass('no-resize');
 
       params.appendTo && $tf.appendTo(params.appendTo);
       params.prependTo && $tf.prependTo(params.prependTo);
@@ -3521,6 +3512,7 @@
       params.disabled && tf.MaterialTextfield.disable();
       params.hidden && $tf.hide();
 
+      // TODO create param to enable/disable clear button
       if (params.clear) {
         $inp.css({paddingRight: 32}); // reduce input size for clear button
         $clear = _material.button({
@@ -3566,17 +3558,9 @@
 
       function setValue(value) {
         const isDisabled = $tf.is('.is-disabled');
-        const isReadonly = $inp.is('[readonly]');
         tf.MaterialTextfield.input_.value = value;
         tf.MaterialTextfield.updateClasses_();
-        const isValid = value && !isDisabled && !isReadonly;
-        $clear && $clear[isValid ? 'show' : 'hide']();
-        $inp.css({paddingRight: isValid ? 32 : 0}); // reduce input size for clear button
-          if (tpl_type === 'textarea' && !params.resize) {
-              if ($inp[0].scrollHeight > $inp[0].clientHeight) {
-                  $inp.height($inp[0].scrollHeight);
-              }
-          }
+        $clear && $clear[value && !isDisabled ? 'show' : 'hide']();
       }
       function createDateTimeField() {
         console.assert(window.moment, 'Plugin "moment.js" not found!');
@@ -3727,7 +3711,7 @@
             // HACK overwrite wrong height = 18 to prevent undetected state clicks (open, close node)
             data.inst.data.core.li_height = 36;
             $mtv.fadeIn('slow');// show the tree now
-            _.isFunction(_.get(params, 'on.loaded')) && params.on.loaded(data.inst);
+            _.isFunction(_.go('on.loaded', params)) && params.on.loaded(data.inst);
           }
         }
       });
@@ -3817,21 +3801,21 @@
               });
             });
             $mtv.fadeIn('slow');// show the tree now
-            _.isFunction(_.get(params, 'on.loaded')) && params.on.loaded(data.inst);
+            _.isFunction(_.go('on.loaded', params)) && params.on.loaded(data.inst);
           },
           'select_node.jstree': function(event, data) {
-            _.isFunction(_.get(params, 'on.select')) && params.on.select(_.get(data, 'rslt.obj'));
+            _.isFunction(_.go('on.select', params)) && params.on.select(_.go('rslt.obj', data));
           },
           'open_node.jstree': function(event, data) {
-            var $node = _.get(data, 'rslt.obj');
-            _.isFunction(_.get(params, 'on.open')) && params.on.open($node, data.inst);
+            var $node = _.go('rslt.obj', data);
+            _.isFunction(_.go('on.open', params)) && params.on.open($node, data.inst);
           },
           'close_node.jstree': function(event, data) {
-            var $node = _.get(data, 'rslt.obj');
-            _.isFunction(_.get(params, 'on.close')) && params.on.close($node, data.inst);
+            var $node = _.go('rslt.obj', data);
+            _.isFunction(_.go('on.close', params)) && params.on.close($node, data.inst);
           },
           'search.jstree': function(event, data) {
-            _.isFunction(_.get(params, 'on.search')) && params.on.search(data.rslt, data.inst);
+            _.isFunction(_.go('on.search', params)) && params.on.search(data.rslt, data.inst);
           }
         });
       }
@@ -3973,7 +3957,7 @@
       function onSelect(target) {
         var tabData = getTabData(target);
 
-        _.isFunction(_.get(params, 'on.select')) && params.on.select.call(null, target, tabData);
+        _.isFunction(_.go('on.select', params)) && params.on.select.call(null, target, tabData);
         _.isFunction(params.onSelect) && params.onSelect(target, tabData);
       }
       function getTabData(target) {
@@ -4264,7 +4248,7 @@
           .change(function() {
             params.on && _.isFunction(params.on.upload) && params.on.upload(this.files);
           });
-        !_.get(params, 'upload.multiple') && $upload.prop('multiple', false);
+        !_.go('upload.multiple', params) && $upload.prop('multiple', false);
       }
 
       // popup menu for button
@@ -5090,6 +5074,7 @@
      * @param {Object} params
      * @param {(String|HTMLElement|JQuery)} params.appendTo
      * @param {String} params.title
+     * @param {String} params.subtitle
      * @param {(String|Function|Object)} params.content
      * @param {(String|HTMLElement|JQuery)} params.$content
      * @param {(Number|String)} params.width
@@ -5133,22 +5118,24 @@
         }
       }
 
-      var
-        $dlg = $(TEMPLATES.dialog(params)).appendTo(params.appendTo),
-        dlg = $dlg.get(0);
+      const $dlg = $(TEMPLATES.dialog(params)).appendTo(params.appendTo);
+      const dlg = $dlg.get(0);
+      const $dlgTitle = $dlg.find('.mdl-dialog__title');
+      const $dlgContent = $dlg.find('.mdl-dialog__content');
+
+      // $dlg.attr('data-backdrop', 'false');
 
       params.width && $dlg.width(params.width);
       if (params.fullwidth) {
         // mdl-dialog__actions--full-width
       }
-      if (params.title) {
-        $dlg.find('.mdl-dialog__title').removeClass('hidden');
+      if (params.title) $dlgTitle.removeClass('hidden');
+      if (params.subtitle) {
+        $('<div class="mdl-dialog__subtitle"/>').text(params.subtitle).insertAfter($dlgTitle);
       }
-      if (params.content) {
-        $dlg.find('.mdl-dialog__content').removeClass('hidden');
-      }
+      if (params.content) $dlgContent.removeClass('hidden');
       if (params.$content) {
-        $dlg.find('.mdl-dialog__content')
+        $dlgContent
           .empty()
           .append(params.$content)
           .removeClass('hidden');
@@ -5203,6 +5190,7 @@
         if (isDisagree) {
           params.fab ? closeFAB() : closeDialog();
         }
+        else if (params.destroy) closeDialog();
       });
 
       // handle RETURN as click on agree button
@@ -5228,7 +5216,7 @@
         });
       }
 
-      return $dlg;
+      return $dlg.trigger('focus');
 
       function closeDialog() {
         dlg.close();
@@ -5845,39 +5833,22 @@
      * @param {String} params.title?
      * @param {Function} params.content?
      * @param {Boolean} [params.scroll=false]
-     * @param {Boolean} [params.expandable=false] - show header textfield with expandable input and search button
-     * @param {Array} [params.gridsize=[2,8]] - set grid cell sizes
-     * @param {Boolean} [params.hideSidebar=false] - set sidebar to hidden
      * @param {Object} params.on - callback handler
      * @param {Function} params.on.close
      * @param {Function} params.on.loaded
-     * @param {Function} params.on.toggle
-     * @return {{$article: JQuery<HTMLElement>|jQuery|HTMLElement, $layout: JQuery<HTMLElement>|jQuery|HTMLElement, $main: JQuery<HTMLElement>|jQuery|HTMLElement, $sidebar: JQuery<HTMLElement>|jQuery|HTMLElement, $content: JQuery<HTMLElement>|jQuery|HTMLElement, close: Function}}
+     * @return {{$article: JQuery<HTMLElement>|jQuery|HTMLElement, $layout: JQuery<HTMLElement>|jQuery|HTMLElement, $content: JQuery<HTMLElement>|jQuery|HTMLElement, close: Function}}
      */
     popup: function(params){
       params = $.extend({}, DEFAULTS.popup, params);
       var
         $layout,
         $article = $(TEMPLATES.article({ title: params.title || '' })),
-        $content = $article.find('.material-belt-article-content'),
-        $main = $article.find('.material-belt-article-main'),
-        $cells = $article.find('.mdl-cell');
+        $content = $article.find('.material-belt-article-content');
 
-      !params.expandable && $article.find('.mdl-textfield--expandable').remove();
+      $article.find('.mdl-textfield--expandable').hide();
 
-      $main.height('calc(100vh - 64px)')
       params.scroll && $article.find('.mdl-layout__header').addClass('mdl-layout__header--scroll');
       // $article.find('.mdl-layout__header').css({ position: 'fixed' });
-
-      const $cell1 = $cells.eq(0).removeClass('mdl-cell--2-col').addClass('mdl-cell--' + params.gridsize[0] + '-col');
-      $cells.eq(1).removeClass('mdl-cell--8-col').addClass('mdl-cell--' + params.gridsize[1] + '-col');
-      const icon = params.hideSidebar ? 'view_compact' : 'view_stream';
-      const $toggleButton = _.material.button({
-        prependTo: $article.find('.mdl-layout__header-row'),
-        id: _.uniqueId('material-belt-article__toggle-'),
-        label: _.material.icon(icon),
-        icon: true
-      }).css({marginRight: 16}).on('click', toggleSidebar);
 
       $content.empty();
       if (_.isFunction(params.content)) {
@@ -5909,29 +5880,16 @@
         }
       });
 
-      params.hideSidebar && $toggleButton.trigger('click');
-
       return {
         $layout: $layout,
         $article: $article,
-        $main: $main,
         $content: $content,
-        $sidebar: $cell1,
         close: function() {
           $layout.fadeOut(function() {
             $layout.remove();
           });
         }
       };
-
-      function toggleSidebar() {
-        const open = $cell1.is(':visible')
-        $cell1[open ? 'hide' : 'show']();
-        $toggleButton.find('i').text(open ? 'view_compact' : 'view_stream');
-        $content.removeClass('mdl-cell--' + params.gridsize[1] + '-col mdl-cell--12-col')
-            .addClass(open ? 'mdl-cell--12-col' : 'mdl-cell--' + params.gridsize[1] + '-col');
-        _.isFunction(params.on.toggle) && params.on.toggle(!open);
-      }
     },
 
     /**
@@ -6073,6 +6031,31 @@
       return parent_space;
     },
 
+    // Get deep object data
+    // ex. _.getObject('pbox.data.user.id')
+    getObject: function(parts, create, obj){
+      if (typeof parts === 'undefined') { return parts; }
+
+      var p, def;
+
+      if (typeof parts === 'string') { parts = parts.split('.'); }
+      if (typeof create !== 'boolean') {
+        def = obj;// use 3. argument as default
+        obj = create;// swap obj when not create
+        create = void 0;
+      }
+      obj = obj || window;// create on global as default
+      while (obj && parts.length) {
+        p = parts.shift();
+        if (typeof obj[p] === 'undefined' && create) { obj[p] = {}; }
+        obj = obj[p];
+      }
+
+      typeof obj === 'undefined' && typeof def !== 'undefined' && (obj = def);
+
+      return obj;
+    },
+
     /**
      * Parse string to JSON object.
      * @param {string} str
@@ -6119,8 +6102,8 @@
       }
 
       var
-        href = action.href || _.get(action, 'bindTo.href'),
-        target = action.target || _.get(action, 'bindTo.target'),
+        href = action.href || _.getObject('bindTo.href', action),
+        target = action.target || _.getObject('bindTo.target', action),
         winHandle;
 
       if (!href) { return; }// required
