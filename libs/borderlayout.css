@@ -82,7 +82,7 @@
 .ui-layout-toggler-east.ui-layout-toggler-closed span.ui-icon {
 	top: 33%;
 	left: -50%;
-	background-position: -96px 0px;
+	background-position: -96px 0;
 }
 .ui-layout-toggler-east.ui-layout-toggler-closed span.ui-icon.big-toggler {
 	left: 0;
@@ -90,7 +90,7 @@
 .ui-layout-toggler-east.ui-layout-toggler-open span.ui-icon {
 	top: 33%;
 	left: -50%;
-	background-position: -32px 0px;
+	background-position: -32px 0;
 }
 .ui-layout-toggler-east.ui-layout-toggler-open span.ui-icon.big-toggler {
 	left: 0;
@@ -98,7 +98,7 @@
 .ui-layout-toggler-west.ui-layout-toggler-closed span.ui-icon {
 	top: 33%;
 	left: -50%;
-	background-position: -32px 0px;
+	background-position: -32px 0;
 }
 .ui-layout-toggler-west.ui-layout-toggler-closed span.ui-icon.big-toggler {
 	left: 0;
@@ -106,7 +106,7 @@
 .ui-layout-toggler-west.ui-layout-toggler-open span.ui-icon {
 	top: 33%;
 	left: -50%;
-	background-position: -96px 0px;
+	background-position: -96px 0;
 }
 .ui-layout-toggler-west.ui-layout-toggler-open span.ui-icon.big-toggler {
 	left: 0;
@@ -116,7 +116,7 @@
 .ui-layout-toggler-north.ui-layout-toggler-closed span.ui-icon {
 	top: -20%;
 	left: 33%;
-	background-position: -64px 0px;
+	background-position: -64px 0;
 }
 .ui-layout-toggler-north.ui-layout-toggler-closed span.ui-icon.big-toggler {
 	top: 0;
@@ -124,7 +124,7 @@
 .ui-layout-toggler-north.ui-layout-toggler-open span.ui-icon {
 	top: -20%;
 	left: 33%;
-	background-position: 0px 0px;
+	background-position: 0 0;
 }
 .ui-layout-toggler-north.ui-layout-toggler-open span.ui-icon.big-toggler {
 	top: 0;
@@ -132,7 +132,7 @@
 .ui-layout-toggler-south.ui-layout-toggler-closed span.ui-icon {
 	top: -20%;
 	left: 33%;
-	background-position: 0px 0px;
+	background-position: 0 0;
 }
 .ui-layout-toggler-south.ui-layout-toggler-closed span.ui-icon.big-toggler {
 	top: 0;
@@ -140,7 +140,7 @@
 .ui-layout-toggler-south.ui-layout-toggler-open span.ui-icon {
 	top: -20%;
 	left: 33%;
-	background-position: -64px 0px;
+	background-position: -64px 0;
 }
 .ui-layout-toggler-south.ui-layout-toggler-open span.ui-icon.big-toggler {
 	top: 0;
@@ -204,25 +204,25 @@
 .ui-layout-resizer .ui-layout-toggler [class^="batch-"],
 .ui-layout-resizer .ui-layout-toggler [class*=" batch-"] {
 	position: relative;
-	}
-	.ui-layout-resizer [class*="-closed"] I {
+}
+.ui-layout-resizer [class*="-closed"] I {
 	-webkit-transform: rotate(-180deg);
 	-moz-transform: rotate(-180deg);
 	transform: rotate(-180deg);
-	}
-	.ui-layout-resizer .ui-layout-toggler I {
+}
+.ui-layout-resizer .ui-layout-toggler I {
 	-webkit-transition: -webkit-transform 2s ease-in-out;
 	-moz-transition: -moz-transform 2s ease-in-out;
 	transition: transform 2s ease-in-out;
-	}
-	.ui-layout-resizer-west .ui-layout-toggler I,
-	.ui-layout-resizer-east .ui-layout-toggler I {
+}
+.ui-layout-resizer-west .ui-layout-toggler I,
+.ui-layout-resizer-east .ui-layout-toggler I {
 	margin-top: 17px;
-	}
-	.ui-layout-resizer-north .ui-layout-toggler I,
-	.ui-layout-resizer-south .ui-layout-toggler I {
+}
+.ui-layout-resizer-north .ui-layout-toggler I,
+.ui-layout-resizer-south .ui-layout-toggler I {
 	margin-top: 2px;
-	}
+}
 
 /*
  *	PANES & CONTENT-DIVs
@@ -237,13 +237,16 @@
 	   - use ui-layout-wrapper class if pane has a content-div
 	   - use layout-child-container if pane has an inner-layout
 	*/
-	}
-	/* (scrolling) content-div inside pane allows for fixed header(s) and/or footer(s) */
-	.ui-layout-content {
-		padding: 10px;
-		position: relative; /* contain floated or positioned elements */
-		overflow: auto; /* add scrolling to content-div */
-	}
+}
+.ui-layout-pane.transparent {
+	background: transparent;
+}
+/* (scrolling) content-div inside pane allows for fixed header(s) and/or footer(s) */
+.ui-layout-content {
+	padding: 10px;
+	position: relative; /* contain floated or positioned elements */
+	overflow: auto; /* add scrolling to content-div */
+}
 
 /*
  *	UTILITY CLASSES
@@ -284,8 +287,7 @@
  */
 .ui-layout-resizer	{ /* all 'resizer-bars' */
 	background: #DDD;
-	border: 1px solid #BBB;
-	border-width: 0;
+	border: 0 solid #BBB;
 	}
 	.ui-layout-resizer.light {
 	  	background: #EAEAEA;
@@ -321,11 +323,9 @@
 	}
 	.ui-layout-resizer-sliding {	/* resizer when pane is 'slid open' */
 		opacity: 0.10; /* show only a slight shadow */
-		*filter: alpha(opacity=10);
 		}
 		.ui-layout-resizer-sliding-hover {	/* sliding resizer - hover */
 			opacity: 1.00; /* on-hover, show the resizer-bar normally */
-			*filter: alpha(opacity=100);
 		}
 		/* sliding resizer - add 'outside-border' to resizer on-hover
 		 * this sample illustrates how to target specific panes and states */
@@ -347,13 +347,11 @@
 	}
 	.ui-layout-resizer-hover .ui-layout-toggler {
 		opacity: 0.60;
-		*filter: alpha(opacity=60);
 	}
 	.ui-layout-toggler-hover , /* need when NOT resizable */
 	.ui-layout-resizer-hover .ui-layout-toggler-hover { /* need specificity when IS resizable */
 		background-color: #FC6;
 		opacity: 1.00;
-		*filter: alpha(opacity=100);
 	}
 	.ui-layout-toggler-north ,
 	.ui-layout-toggler-south {
@@ -371,9 +369,9 @@
 	 *	style the text we put INSIDE the togglers
 	 */
 	.ui-layout-toggler .content {
-		color: 666;
+		color: #666;
 		font-size: 12px;
-		font-weight: old;
+		font-weight: 500;
 		width: 100%;
 		padding-bottom: 0.35ex; /* to 'vertically center' text inside text-span */
 	}
@@ -390,7 +388,6 @@
 	overflow: hidden !important;
 	position: absolute !important;
 	opacity: 0 !important;
-	*filter: alpha(opacity="0") !important;
 }
 .ui-layout-mask-inside-pane { /* masks always inside pane EXCEPT when pane is an iframe */
 	top: 0 !important;
@@ -440,8 +437,8 @@
 	background-color: rgba(16,16,16,0.50);
 }
 
-DIV.ui-layout-mask {}		/* standard mask for iframes */
-IFRAME.ui-layout-mask {}	/* extra mask for objects/applets */
+div.ui-layout-mask {}		/* standard mask for iframes */
+iframe.ui-layout-mask {}	/* extra mask for objects/applets */
 
 /*  Application bar */
 /*  =============== */
@@ -460,9 +457,9 @@ IFRAME.ui-layout-mask {}	/* extra mask for objects/applets */
 
 .ui-layout-appbar {
   	background-color: #212021;
-  	bottom: 0px;
+  	bottom: 0;
   	color: #fff;
-  	left: 0px;
+  	left: 0;
   	line-height: normal;
   	margin: 0;
   	overflow: hidden;
@@ -565,17 +562,17 @@ IFRAME.ui-layout-mask {}	/* extra mask for objects/applets */
 	border: 0;
 	color: #333;
 	}
-	.layout-table-wrapper TABLE {
+	.layout-table-wrapper table {
 		width: 100%;
 	}
-	.layout-table-wrapper TABLE TR TD {
+	.layout-table-wrapper table tr td {
 		padding: 2px 5px;
 		line-height: 20px;
 		text-align: right;
 		border-left: 1px solid #999;
 		border-right: 1px solid #999;
 	}
-	.layout-table-wrapper SMALL {
+	.layout-table-wrapper small {
 		margin: 0 5px;
 		color: #AAA;
 	}

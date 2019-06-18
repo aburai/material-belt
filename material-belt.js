@@ -1,5 +1,5 @@
 /**
- * Material Belt - v1.4.5 (c) 2016-2019; aburai
+ * Material Belt - v1.4.6 (c) 2016-2019; aburai
  *                  _            _       _   _          _ _
  *  _ __ ___   __ _| |_ ___ _ __(_) __ _| | | |__   ___| | |_
  * | '_ ` _ \ / _` | __/ _ \ '__| |/ _` | | | '_ \ / _ \ | __|
@@ -8,8 +8,8 @@
  *
  * @file material-belt.js
  * @author André Bunse (aburai@github.com) <andre.bunse@gmail.com>
- * @version 1.4.5
- * @license Material Belt is released under the MIT license.
+ * @version 1.4.6
+ * @license Material Belt is released under the ISC license.
  *
  * Extend the mdl library from Jason Mayes.
  * https://github.com/google/material-design-lite
@@ -36,7 +36,7 @@
 
   var
   WATCHDOG = {
-    __version: '1.4.5',
+    __version: '1.4.6',
     __build: '@BUILD@',
     __buildDate: '@BUILDDATE@'
   },
@@ -146,6 +146,7 @@
       '<textarea class="mdl-textfield__input" id="<%= id %>" rows="<%= rows %>"></textarea>' +
       '<label class="mdl-textfield__label" for="<%= id %>"><%= label %></label>' +
       '<span class="mdl-textfield__error"></span>' +
+      '<span class="mdl-textfield__helper"></span>' +
       '</div>'
     ),
     list: _.template('<ul class="mdl-list"></ul>'),
@@ -436,10 +437,11 @@
       appendTo: '',
       value: '',
       floatLabel: true,
-      spellCheck: false,
+      spellcheck: false,
       date: false,
       overlay: false,
       clear: true,
+      resize: true,
       helper: '',
       i18n: {
         agree: 'Übernehmen',
@@ -595,6 +597,7 @@
     },
     popup: {
       title: '',
+      gridsize: [2, 8],
       on: {
         loaded: $.noop,
         close: $.noop
@@ -1129,7 +1132,7 @@
         $item = $(this).parent(),
         action = $item.attr('data-action'),
         $opt = $(this).children(':selected'),
-        actionCallback = _.go('params.on.action', ab);
+        actionCallback = _.get(ab, 'params.on.action');
 
       // sync selected option with action in the actionbar
       if (ab.$moreMenu) {
@@ -1284,10 +1287,10 @@
       action = this.actions[actionName],
       actionData = _.extend({ action: actionName }, data),
       bindTo,
-      actionCallback = _.go('params.on.action', this);
+      actionCallback = _.get(this, 'params.on.action');
 
     if (_.isFunction(actionCallback)) {
-      bindTo = _.go('bindTo', action) || action;
+      bindTo = _.get(action, 'bindTo') || action;
       // if callback return false, we break up
       if (this.params.returnData) {
         if (actionCallback.call(context || this, actionName, actionData) === false) {
@@ -1439,7 +1442,7 @@
       icon: true,
       title: action.title || action.tooltip,
       data: { uid: ab.name },
-      titlePosition: _.getObject('tooltips.position', ab.params) || 'bottom',
+      titlePosition: _.get(ab.params, 'tooltips.position') || 'bottom',
       disabled: true// create in disabled mode
     })
       .attr('data-action', action.name)
@@ -1716,7 +1719,7 @@
       )
     );
 
-    menuPositionClass = _.go('params.menu.position', this) === 'br' ? 'top-right' : 'bottom-right';
+    menuPositionClass = _.get(this, 'params.menu.position') === 'br' ? 'top-right' : 'bottom-right';
     this.$moreMenu = $(TEMPLATES.menu({ id: moreId, cls: 'mdl-menu--' + menuPositionClass }))
       .attr('data-uid', this.name)
       .appendTo($appendTo);
@@ -2209,11 +2212,14 @@
         });
       }
       else if (!cell && icon) {
-        _.material.button({
-          appendTo: $td,
-          label: _.material.icon(icon),
-          icon: true
-        });
+        if (td.button !== false) {
+          _.material.button({
+            appendTo: $td,
+            label: _.material.icon(icon),
+            icon: true
+          });
+        }
+        else $td.append(_.material.icon(icon));
         cellWidth = 32;
         cls = 'mdl-data-table__cell--icon-center';
         if (icon === 'warning') {
@@ -2225,7 +2231,7 @@
         cls = 'mdl-data-table__cell--icon-center';
       }
       else {
-        $td.html(cell);
+        $td.append(cell);
       }
 
       if (_.isObject(td) && td.cls) {
@@ -2488,11 +2494,15 @@
         value: !_.isUndefined(selected) ? selected.label : '',
         disabled: false,
         readonly: true,
-        clear: false
+        clear: false,
+        helper: params.helper
       }),
       $arrow = $(_.material.icon('keyboard_arrow_down')),
-      $dropdown = $('<div/>').addClass('mdl-select__dropdown').appendTo(!params.inline ? 'body' : $wrapper),
+      $dropdown = $('<div/>').addClass('mdl-select__dropdown'),
       $options = $('<ul/>').addClass('mdl-select__options').appendTo($dropdown);
+
+    if (params.parent) $dropdown.appendTo(params.parent);
+    else $dropdown.appendTo(!params.inline ? 'body' : $wrapper)
 
     $wrapper.data('instance', this);// bind instance to select wrapper element
 
@@ -2506,7 +2516,7 @@
     this.$dropdown = $dropdown;
     this.$list = $options;
 
-    if (params.inline) {
+    if (params.inline && !this.params.parent) {
       this.params.parent = $wrapper;
     }
 
@@ -2523,7 +2533,7 @@
         params.width = this.$trigger.width();
       }
     }
-    params.width && $tf.width(params.width);
+    params.width && $tf.width(params.width) && $wrapper.width(params.width);
 
     params.disabled && $wrapper.addClass('mdl-select--disabled');
     !params.padded && $wrapper.addClass('mdl-select--notpadded');// true by default (formular style)
@@ -2601,7 +2611,7 @@
         .siblings().removeAttr('selected');
     }
 
-    !_.isEmpty(this.params.on) && _.isFunction(this.params.on.change) && this.params.on.change($option);
+    !_.isEmpty(this.params.on) && _.isFunction(this.params.on.change) && this.params.on.change.call(this, $option);
   };
 
   MSelect.prototype.get = function(type, value) {
@@ -2785,7 +2795,8 @@
       // direction up or down
       ddtop = bottom > 0 ? rect.top + topgap : rect.top - mheight + iheight,
       // default: absolute position of textfield
-      ddleft = rect.left;
+      ddleft = rect.left,
+      prect;
 
     if (!this.$dropdown.is('.is-visible')) { return; }
     if (!isVisible) {
@@ -2795,8 +2806,18 @@
 
     // dropdown is inline, calc as relative position
     if (this.params.inline) {
-      ddtop = rect.height - (this.params.padded ? 20 : 0) + 1;
-      ddleft = 0;
+      if (!this.params.parent) {
+        ddtop = rect.height - (this.params.padded ? 20 : 0) + 1;
+        ddleft = 0;
+      }
+      else {
+        prect = $parent[0].getBoundingClientRect();
+        ddtop = rect.top - prect.top + rect.height;
+        if (ddtop + mheight > prect.height) {
+          ddtop = ddtop - mheight - rect.height;
+        }
+        ddleft = rect.left - prect.left;
+      }
     }
     // not inline but position under control
     else if (this.params.bottomMenu) {
@@ -2813,7 +2834,7 @@
     let sw = this.params.width;
     sw = sw || this.$list.parent().width() + ($arrow.is(':visible') ? $arrow.width() : 0);
     this.$tf.width(sw);
-    this.$dropdown.css('minWidth', sw);
+    // this.$dropdown.css('minWidth', sw);
   };
 
   MSelect.prototype.focus = function() {
@@ -2846,8 +2867,8 @@
     if (params.name) {
       this.$sync.attr('name', params.name).val(params.value);
       this.prependAdd();
-      this.$container.find('.mdl-chip__input').keydown(function(event) {
-        if (event.keyCode === 13) {
+      this.$container.find('.mdl-chip__input').on('keydown', function(event) {
+        if (event.code === 'Enter') {
           event.preventDefault();
           var $mci = $(this), val = $mci.val();
           $mci.val('');
@@ -2951,7 +2972,7 @@
       });
 
     this.$container.prepend($chip);
-    this.$container.find('.mdl-chip__input').width(120).attr('placeholder', 'Neues Stichwort');
+    this.$container.find('.mdl-chip__input').width(120).attr('placeholder', mchips.params.placeholder || 'Neues Stichwort');
   };
 
   MChips.prototype.sync = function() {
@@ -2975,7 +2996,7 @@
       needle = ' ' + $.trim(val) + ' ',
       chipExists = this.$container.find('[data-value="'+val+'"]').length > 0;
 
-    return window.s.contains(currentValues, needle) && chipExists;
+    return _.includes(currentValues, needle) && chipExists;
   };
 
   // ========================================
@@ -2987,7 +3008,7 @@
    * @namespace
    * @type {Object}
    */
-  _.material = {
+  const _material = _.material = {
     /**
      * Material Login Dialog.
      *
@@ -3443,6 +3464,8 @@
      * @property {boolean} readonly - set input to readonly
      * @property {boolean} disabled - set input to disabled
      * @property {boolean} hidden - set input to hidden
+     * @property {boolean} spellcheck - activate spellcheck or not
+     * @property {boolean} resize=true - activate resizable (for textareas only)
      * @property {!number} tabindex - set input tabindex
      * @property {!number} rows - set rows > 1 to use textarea
      * @property {!number|!string} width=300 - set input width (ex. '100%')
@@ -3450,11 +3473,11 @@
      * @property {string} helper - set input helper text
      * @property {Object} attr - set input attributes
      * @property {Object} data - set input data attributes
-     * @property {JQuery} appendTo - append textfield to
-     * @property {JQuery} prependTo - prepend textfield to
+     * @property {JQuery|HTMLElement} appendTo - append textfield to
+     * @property {JQuery|HTMLElement} prependTo - prepend textfield to
      * @property {boolean} date - create date input
      * @property {boolean} time - create time input
-     * @property {Object} on - event callback handler
+     * @property {Object} on - event callback handle
      */
     /**
      * Material Textfield.
@@ -3483,11 +3506,12 @@
       params.autofocus && $inp.prop('autofocus', true);
       params.readonly && $inp.prop('readonly', true);
       params.placeholder && $inp.attr('placeholder', params.placeholder);
-      $inp.prop('spellcheck', params.spellCheck);
+      $inp.prop('spellcheck', params.spellcheck);
       params.tabindex && $inp.attr('tabindex', params.tabindex);
       params.width && $tf.width(params.width) && $inp.width(params.width);
       params.cls && $tf.addClass(params.cls);
       params.helper && $tf.find('.mdl-textfield__helper').text(params.helper);
+      !params.resize && tpl_type === 'textarea' && $inp.addClass('no-resize');
 
       params.appendTo && $tf.appendTo(params.appendTo);
       params.prependTo && $tf.prependTo(params.prependTo);
@@ -3497,18 +3521,18 @@
       params.disabled && tf.MaterialTextfield.disable();
       params.hidden && $tf.hide();
 
-      // TODO create param to enable/disable clear button
       if (params.clear) {
         $inp.css({paddingRight: 32}); // reduce input size for clear button
-        $clear = _.material.button({
+        $clear = _material.button({
           appendTo: $tf,
           icon: true,
-          label: _.material.icon('clear')
+          label: _material.icon('clear')
         }).css({right: 0}).hide().click(function () {
           setValue('');
           $inp.trigger('change');
           $inp.trigger('focus');
         });
+        $clear.attr('tabindex', '-1');
       }
 
       if (params.date || params.time) {
@@ -3542,17 +3566,25 @@
 
       function setValue(value) {
         const isDisabled = $tf.is('.is-disabled');
+        const isReadonly = $inp.is('[readonly]');
         tf.MaterialTextfield.input_.value = value;
         tf.MaterialTextfield.updateClasses_();
-        $clear && $clear[value && !isDisabled ? 'show' : 'hide']();
+        const isValid = value && !isDisabled && !isReadonly;
+        $clear && $clear[isValid ? 'show' : 'hide']();
+        $inp.css({paddingRight: isValid ? 32 : 0}); // reduce input size for clear button
+          if (tpl_type === 'textarea' && !params.resize) {
+              if ($inp[0].scrollHeight > $inp[0].clientHeight) {
+                  $inp.height($inp[0].scrollHeight);
+              }
+          }
       }
       function createDateTimeField() {
         console.assert(window.moment, 'Plugin "moment.js" not found!');
         console.assert(window.mdDateTimePicker, 'Plugin "mdDateTimePicker.js" not found!');
         var
           i18n = params.i18n,
-          $dteBtn = _.material.button({
-            label: _.material.icon('today'),
+          $dteBtn = _material.button({
+            label: _material.icon('today'),
             icon: true,
             cls: 'mdl-textfield__datepicker',
             attr: {
@@ -3695,7 +3727,7 @@
             // HACK overwrite wrong height = 18 to prevent undetected state clicks (open, close node)
             data.inst.data.core.li_height = 36;
             $mtv.fadeIn('slow');// show the tree now
-            _.isFunction(_.go('on.loaded', params)) && params.on.loaded(data.inst);
+            _.isFunction(_.get(params, 'on.loaded')) && params.on.loaded(data.inst);
           }
         }
       });
@@ -3785,21 +3817,21 @@
               });
             });
             $mtv.fadeIn('slow');// show the tree now
-            _.isFunction(_.go('on.loaded', params)) && params.on.loaded(data.inst);
+            _.isFunction(_.get(params, 'on.loaded')) && params.on.loaded(data.inst);
           },
           'select_node.jstree': function(event, data) {
-            _.isFunction(_.go('on.select', params)) && params.on.select(_.go('rslt.obj', data));
+            _.isFunction(_.get(params, 'on.select')) && params.on.select(_.get(data, 'rslt.obj'));
           },
           'open_node.jstree': function(event, data) {
-            var $node = _.go('rslt.obj', data);
-            _.isFunction(_.go('on.open', params)) && params.on.open($node, data.inst);
+            var $node = _.get(data, 'rslt.obj');
+            _.isFunction(_.get(params, 'on.open')) && params.on.open($node, data.inst);
           },
           'close_node.jstree': function(event, data) {
-            var $node = _.go('rslt.obj', data);
-            _.isFunction(_.go('on.close', params)) && params.on.close($node, data.inst);
+            var $node = _.get(data, 'rslt.obj');
+            _.isFunction(_.get(params, 'on.close')) && params.on.close($node, data.inst);
           },
           'search.jstree': function(event, data) {
-            _.isFunction(_.go('on.search', params)) && params.on.search(data.rslt, data.inst);
+            _.isFunction(_.get(params, 'on.search')) && params.on.search(data.rslt, data.inst);
           }
         });
       }
@@ -3941,7 +3973,7 @@
       function onSelect(target) {
         var tabData = getTabData(target);
 
-        _.isFunction(_.go('on.select', params)) && params.on.select.call(null, target, tabData);
+        _.isFunction(_.get(params, 'on.select')) && params.on.select.call(null, target, tabData);
         _.isFunction(params.onSelect) && params.onSelect(target, tabData);
       }
       function getTabData(target) {
@@ -4129,26 +4161,27 @@
      * Material Button.
      *
      * @param {Object} params
-     * @param {(String|Object)=} params.appendTo
-     * @param {(String|Object)=} params.prependTo
+     * @param {(String|Object)?} params.appendTo
+     * @param {(String|Object)?} params.prependTo
      * @param {String} params.label
-     * @param {String=} params.id?
-     * @param {String=} params.title?
-     * @param {String=} params.cls?
+     * @param {String?} params.id
+     * @param {String?} params.title
+     * @param {String?} params.cls
      * @param {boolean} [params.raised=false]
      * @param {boolean} [params.colored=false]
      * @param {boolean} [params.accent=false]
      * @param {boolean} [params.icon=false]
-     * @param {String=} params.iconRight?
-     * @param {String=} params.iconLeft?
+     * @param {String?} params.iconRight
+     * @param {String?} params.iconLeft
      * @param {boolean} [params.disabled=false]
      * @param {boolean} [params.hidden=false]
-     * @param {String=} params.keyCode?
-     * @param {String=} params.keyCodeDescr?
+     * @param {String?} params.keyCode
+     * @param {String?} params.keyCodeDescr
      * @param {boolean} [params.upload=false]
-     * @param {Number=} params.zIndex?
-     * @param {Object=} params.attr?
-     * @param {Array=} params.menu?
+     * @param {Number?} params.zIndex
+     * @param {Object?} params.attr
+     * @param {Array?} params.menu
+     * @param {Object?} params.on - event callback handler
      * @return {JQuery} button element
      */
     button: function(params){
@@ -4197,7 +4230,7 @@
       // create tooltip
       // appendTo needed, cause button must exists when creating tooltip
       // NOTE if the tooltip doesn't appear, a parent element was not on DOM right now
-      if (params.title && params.appendTo) {
+      if (params.title && (params.appendTo || params.prependTo)) {
         params.attr = params.attr || {};
         params.attr.id = params.attr.id || params.id || _.uniqueId('mdl-button-');
         $tooltip = $(TEMPLATES.tooltip(params.attr)).text(params.title).appendTo('body');
@@ -4231,7 +4264,7 @@
           .change(function() {
             params.on && _.isFunction(params.on.upload) && params.on.upload(this.files);
           });
-        !_.go('upload.multiple', params) && $upload.prop('multiple', false);
+        !_.get(params, 'upload.multiple') && $upload.prop('multiple', false);
       }
 
       // popup menu for button
@@ -5059,6 +5092,7 @@
      * @param {String} params.title
      * @param {(String|Function|Object)} params.content
      * @param {(String|HTMLElement|JQuery)} params.$content
+     * @param {(Number|String)} params.width
      * @param {Boolean} params.open
      * @param {Number} params.timeout
      * @param {String} params.agree
@@ -5120,11 +5154,14 @@
           .removeClass('hidden');
       }
       if (params.agree || params.disagree) {
-        $dlg.find('.mdl-dialog__actions').removeClass('hidden');
-        // use data-name=agree or data-name=disagree
-        params.agree && $dlg.find('button').filter('[data-name=agree]').removeClass('hidden');
-        params.agreeColored && $dlg.find('button').filter('[data-name=agree]').addClass('mdl-button--raised mdl-button--colored');
-        params.disagree && $dlg.find('button').filter('[data-name=disagree]').removeClass('hidden');
+        const $actions = $dlg.find('.mdl-dialog__actions');
+        const $agree = $actions.find('[data-name=agree]');
+        const $disagree = $actions.find('[data-name=disagree]');
+        $actions.removeClass('hidden');
+        params.agree && $agree.removeClass('hidden');
+        params.agreeColored && $agree.addClass('mdl-button--raised mdl-button--colored');
+        !params.agreeColored && params.submitOnReturn && $agree.addClass('mdl-button--colored');
+        params.disagree && $disagree.removeClass('hidden');
       }
 
       /**
@@ -5170,7 +5207,7 @@
 
       // handle RETURN as click on agree button
       params.submitOnReturn && $dlg.on('keyup', function(event) {
-        if (event.key === 'Enter') {// RETURN
+        if (event.key === 'Enter' && !/^(TEXTAREA)$/i.test(event.target.tagName)) {
           event.preventDefault();
           event.stopPropagation();
           $('.mdl-dialog__actions .mdl-button[data-name=agree]', $dlg).trigger('click');
@@ -5808,22 +5845,39 @@
      * @param {String} params.title?
      * @param {Function} params.content?
      * @param {Boolean} [params.scroll=false]
+     * @param {Boolean} [params.expandable=false] - show header textfield with expandable input and search button
+     * @param {Array} [params.gridsize=[2,8]] - set grid cell sizes
+     * @param {Boolean} [params.hideSidebar=false] - set sidebar to hidden
      * @param {Object} params.on - callback handler
      * @param {Function} params.on.close
      * @param {Function} params.on.loaded
-     * @return {{$article: JQuery<HTMLElement>|jQuery|HTMLElement, $layout: JQuery<HTMLElement>|jQuery|HTMLElement, $content: JQuery<HTMLElement>|jQuery|HTMLElement, close: Function}}
+     * @param {Function} params.on.toggle
+     * @return {{$article: JQuery<HTMLElement>|jQuery|HTMLElement, $layout: JQuery<HTMLElement>|jQuery|HTMLElement, $main: JQuery<HTMLElement>|jQuery|HTMLElement, $sidebar: JQuery<HTMLElement>|jQuery|HTMLElement, $content: JQuery<HTMLElement>|jQuery|HTMLElement, close: Function}}
      */
     popup: function(params){
       params = $.extend({}, DEFAULTS.popup, params);
       var
         $layout,
         $article = $(TEMPLATES.article({ title: params.title || '' })),
-        $content = $article.find('.material-belt-article-content');
+        $content = $article.find('.material-belt-article-content'),
+        $main = $article.find('.material-belt-article-main'),
+        $cells = $article.find('.mdl-cell');
 
-      $article.find('.mdl-textfield--expandable').hide();
+      !params.expandable && $article.find('.mdl-textfield--expandable').remove();
 
+      $main.height('calc(100vh - 64px)')
       params.scroll && $article.find('.mdl-layout__header').addClass('mdl-layout__header--scroll');
       // $article.find('.mdl-layout__header').css({ position: 'fixed' });
+
+      const $cell1 = $cells.eq(0).removeClass('mdl-cell--2-col').addClass('mdl-cell--' + params.gridsize[0] + '-col');
+      $cells.eq(1).removeClass('mdl-cell--8-col').addClass('mdl-cell--' + params.gridsize[1] + '-col');
+      const icon = params.hideSidebar ? 'view_compact' : 'view_stream';
+      const $toggleButton = _.material.button({
+        prependTo: $article.find('.mdl-layout__header-row'),
+        id: _.uniqueId('material-belt-article__toggle-'),
+        label: _.material.icon(icon),
+        icon: true
+      }).css({marginRight: 16}).on('click', toggleSidebar);
 
       $content.empty();
       if (_.isFunction(params.content)) {
@@ -5855,16 +5909,29 @@
         }
       });
 
+      params.hideSidebar && $toggleButton.trigger('click');
+
       return {
         $layout: $layout,
         $article: $article,
+        $main: $main,
         $content: $content,
+        $sidebar: $cell1,
         close: function() {
           $layout.fadeOut(function() {
             $layout.remove();
           });
         }
       };
+
+      function toggleSidebar() {
+        const open = $cell1.is(':visible')
+        $cell1[open ? 'hide' : 'show']();
+        $toggleButton.find('i').text(open ? 'view_compact' : 'view_stream');
+        $content.removeClass('mdl-cell--' + params.gridsize[1] + '-col mdl-cell--12-col')
+            .addClass(open ? 'mdl-cell--12-col' : 'mdl-cell--' + params.gridsize[1] + '-col');
+        _.isFunction(params.on.toggle) && params.on.toggle(!open);
+      }
     },
 
     /**
@@ -5873,6 +5940,30 @@
      */
     article: function(params){
       return $(TEMPLATES.article(params));
+    },
+
+    // TODO manage content argument
+    prompt: function(params, callback){
+      callback = callback || $.noop;
+      params = $.extend(true, {}, {
+        title: '',
+        open: true,
+        width: 480,
+        agree: 'OK',
+        disagree: 'Cancel',
+        submitOnReturn: true,
+        cancelOnEsc: true,
+        on: {
+          agree: function () {
+            this.close();
+            callback(true);
+          },
+          disagree: function () {
+            callback(false);
+          }
+        }
+      }, params);
+      return _material.dialog(params);
     }
   };
 
@@ -5982,31 +6073,6 @@
       return parent_space;
     },
 
-    // Get deep object data
-    // ex. _.getObject('pbox.data.user.id')
-    getObject: function(parts, create, obj){
-      if (typeof parts === 'undefined') { return parts; }
-
-      var p, def;
-
-      if (typeof parts === 'string') { parts = parts.split('.'); }
-      if (typeof create !== 'boolean') {
-        def = obj;// use 3. argument as default
-        obj = create;// swap obj when not create
-        create = void 0;
-      }
-      obj = obj || window;// create on global as default
-      while (obj && parts.length) {
-        p = parts.shift();
-        if (typeof obj[p] === 'undefined' && create) { obj[p] = {}; }
-        obj = obj[p];
-      }
-
-      typeof obj === 'undefined' && typeof def !== 'undefined' && (obj = def);
-
-      return obj;
-    },
-
     /**
      * Parse string to JSON object.
      * @param {string} str
@@ -6053,8 +6119,8 @@
       }
 
       var
-        href = action.href || _.getObject('bindTo.href', action),
-        target = action.target || _.getObject('bindTo.target', action),
+        href = action.href || _.get(action, 'bindTo.href'),
+        target = action.target || _.get(action, 'bindTo.target'),
         winHandle;
 
       if (!href) { return; }// required
@@ -6167,28 +6233,6 @@
         disagree: false,
         agree: false
       });
-    },
-
-    // TODO manage content argument
-    prompt: function(params, callback){
-      callback = callback || $.noop;
-      params = $.extend({}, {
-        title: '',
-        open: true,
-        width: 480,
-        agree: 'OK',
-        disagree: 'Cancel',
-        on: {
-          agree: function () {
-            this.close();
-            callback(true);
-          },
-          disagree: function () {
-            callback(false);
-          }
-        }
-      }, params);
-      return _.material.dialog(params);
     }
   });
 

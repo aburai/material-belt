@@ -52,6 +52,10 @@
   color: rgba(255, 255, 255, 1);
 }
 
+.mdl-tooltip {
+  z-index: 9999 !important;
+}
+
 .mdl--canvas {
   background-color: #BDC1C6;
 }
@@ -100,6 +104,7 @@
   font-weight: 500;
 }
 .mdl-textfield .mdl-textfield__label {
+  margin: 0;
   font-family: "Roboto","Helvetica","Arial",sans-serif;
   font-size: 12px;
   font-weight: 500;
@@ -134,6 +139,13 @@
 }
 .mdl-textfield__helper:empty {
   display: none;
+}
+
+.mdl-textfield textarea.mdl-textfield__input {
+  overflow: hidden auto;
+}
+.mdl-textfield textarea.mdl-textfield__input.no-resize {
+  resize: none;
 }
 
 /*
@@ -252,10 +264,12 @@
 .mdl-list__item:focus {
   outline: 0;
   background-color: #eee;
+  color: #000;
 }
 .mdl-list__item:hover {
   outline: 0;
   background-color: #ddd;
+  color: #000;
 }
 
 .mdl-radio__label {
@@ -469,6 +483,7 @@ dialog.mdl-dialog--polyfill {
   font-size: 16px;
   font-weight: 500;
   line-height: 48px;
+  margin: 0;
   padding: 0 24px 0 8px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -555,8 +570,11 @@ dialog.mdl-dialog--polyfill {
 .mdl-actionbar.mdl-actionbar--light .mdl-actionbar__group.mdl--right {
   border-left: 1px solid #CCC;
 }
+.mdl-actionbar.mdl-actionbar--light .mdl-select {
+  background-color: #FFF;
+}
 
-/* Dark Theme */
+  /* Dark Theme */
 .mdl-actionbar.mdl-actionbar--dark {
   background-color: rgba(32, 32, 32, 1);
 }
@@ -595,7 +613,7 @@ dialog.mdl-dialog--polyfill {
   color: rgba(255, 255, 255, 1);
 }
 .mdl-actionbar.mdl-actionbar--dark .mdl-actionbar__label {
-  color: rgba(255, 255, 255, 0.70);
+  color: rgba(255, 255, 255, 1);
 }
 .mdl-actionbar.mdl-actionbar--dark .mdl-actionbar__label.disabled {
   color: rgba(255, 255, 255, 0.50);
@@ -680,7 +698,7 @@ dialog.mdl-dialog--polyfill {
   pointer-events: none;
 }
 .mdl-select.mdl-select--notpadded .mdl-textfield {
-  padding: 4px 2px 0 8px; /* padding left as buttons in dropdown menu */
+  padding: 2px 2px 0 8px; /* padding left as buttons in dropdown menu */
 }
 
 .mdl-select__dropdown {
@@ -717,9 +735,12 @@ dialog.mdl-dialog--polyfill {
   text-align: left;
   text-transform: none;
 }
+.mdl-select__options .mdl-button:hover {
+  color: #000;
+}
 .mdl-select__arrow {
   position: absolute;
-  top: 20px;
+  top: 24px;
   right: 4px;
   cursor: pointer;
   -webkit-user-select: none;
@@ -728,7 +749,7 @@ dialog.mdl-dialog--polyfill {
   user-select: none;
 }
 .mdl-select.mdl-select--notpadded .mdl-select__arrow {
-  top: 6px;
+  top: 4px;
 }
 .mdl-select.mdl-select--disabled .mdl-select__arrow {
   color: rgba(0, 0, 0, 0.3);
@@ -894,6 +915,7 @@ dialog.mdl-dialog--polyfill {
 .material-belt-article-content {
   border-radius: 2px;
   padding: 20px 56px;
+  transition: height .5s ease-in-out;
 }
 .material-belt-article-content h2 {
   font-size: 28px;
