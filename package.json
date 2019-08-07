@@ -27,7 +27,7 @@
   },
   "homepage": "https://github.com/aburai/material-belt#readme",
   "devDependencies": {
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.15",
     "material-design-lite": "^1.3.0"
   }
 }
