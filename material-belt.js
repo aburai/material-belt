@@ -31,8 +31,7 @@
   'use strict';
 
   // TODO support require or module.export
-  // NOTE material belt as mixin only work with window namespace (an new require() or import has no mixins)
-  console.assert(typeof window._ === 'function', 'Underscore/Lodash required! Check window._');
+  console.assert(typeof window.material === 'undefined', 'Namespace window.material already defined!');
 
   var
   WATCHDOG = {
@@ -624,7 +623,7 @@
             }));
           });
 
-          _.material.dialog({
+          window.material.dialog({
             width: 360,
             title: 'Keyboard Shortcuts',
             content: $list,
@@ -998,7 +997,7 @@
 
   ActionBar.prototype._init = function() {
     if (!_.layout) {
-      console.error('_.material.actionbar: Borderlayout Belt not found!');
+      console.error('window.material.actionbar: Borderlayout Belt not found!');
       return;
     }
 
@@ -1345,10 +1344,10 @@
 
     _.each(group, function (action) {
       if (!action.name) {
-        ab.params.debug !== false && console.warn('_.material.actionbar: invalid action definition! missing property "name"', action);
+        ab.params.debug !== false && console.warn('window.material.actionbar: invalid action definition! missing property "name"', action);
       }
       if (ab.actions[action.name]) {
-        ab.params.debug !== false && console.warn('_.material.actionbar: duplicate action definition! name already defined', action, ab.actions);
+        ab.params.debug !== false && console.warn('window.material.actionbar: duplicate action definition! name already defined', action, ab.actions);
         return;
       }
 
@@ -1358,7 +1357,7 @@
       // CHECKBOX
       // TODO more menu control
       if (action.checkbox) {
-        action.$control = _.material.checkbox({
+        action.$control = window.material.checkbox({
             appendTo: $appendTo,
             label: action.label,
             checked: action.checked
@@ -1374,7 +1373,7 @@
       // CHECKBOX AS TOGGLE
       // TODO more menu control
       else if (action.toggle) {
-        action.$control = _.material.toggle({
+        action.$control = window.material.toggle({
           appendTo: $appendTo,
           label: action.label,
           checked: action.checked
@@ -1432,7 +1431,7 @@
       $btn,
       $menuItem;
 
-    $btn = action.$control = _.material.button({
+    $btn = action.$control = window.material.button({
       appendTo: $appendTo,
       label: action.iconText || TEMPLATES.icon({ icon: action.icon }),
       cls: action.iconText ? 'mdl-actionbar__item--text' : '',
@@ -1501,7 +1500,7 @@
       action.title = '';
     }
 
-    $btn = action.$control = _.material.button({
+    $btn = action.$control = window.material.button({
       appendTo: $appendTo,
       label: action.label,
       iconLeft: action.icon,
@@ -1532,7 +1531,7 @@
       $appendTo.append(
         $badge = $('<div/>').addClass('mdl-actionbar__item-badge mdl--left')
           .text('?')
-          //.append(_.material.icon('help_outline'))
+          //.append(window.material.icon('help_outline'))
       );
       // upload property could be a function
       // ex. to modify the container and wrap a form element
@@ -1623,7 +1622,7 @@
     $selItem.appendTo($appendTo);
 
     // convert select to material design
-    action.select = _.first(_.material.selectFrom($sel, {
+    action.select = _.first(window.material.selectFrom($sel, {
       width: action.width,
       //width: $selItem.outerWidth(true),
       padded: false,
@@ -1670,7 +1669,7 @@
         $button.clone(true, true)
       );
       // convert the cloned select
-      //_.material.selectFrom($menuItem.find('select'), {
+      //window.material.selectFrom($menuItem.find('select'), {
       //  padded: false
       //});
     }
@@ -1679,7 +1678,7 @@
   };
 
   ActionBar.prototype.addTextfield = function(action, $appendTo) {
-    action.$control = _.material.textfield({
+    action.$control = window.material.textfield({
         appendTo: $appendTo,
         placeholder: action.placeholder,
         value: action.value,
@@ -1701,7 +1700,7 @@
       //$appendTo = this.params.appendTo.offsetParent();
 
     // create icon button to show hidden action groups
-    this.$more = _.material.button({
+    this.$more = window.material.button({
       label: TEMPLATES.icon({ icon: 'more_vert' }),
       icon: true
     })
@@ -2133,8 +2132,8 @@
       }
       $th = $('<th/>').addClass(cls).appendTo($thr);
       if (!_.isString(h) && h.icon) {
-        _.material.button({
-          label: _.material.icon(h.icon),
+        window.material.button({
+          label: window.material.icon(h.icon),
           icon: true,
           title: h.title,
           appendTo: $th,
@@ -2203,15 +2202,15 @@
       $td = $('<td/>').appendTo($tr);
 
       if (!cell && checkbox) {
-        _.material.checkbox({
+        window.material.checkbox({
           appendTo: $td,
           cls: 'mdl-data-table__select'
         });
       }
       else if (!cell && icon) {
-        _.material.button({
+        window.material.button({
           appendTo: $td,
-          label: _.material.icon(icon),
+          label: window.material.icon(icon),
           icon: true
         });
         cellWidth = 32;
@@ -2482,7 +2481,7 @@
       $wrapper = $('<div/>').addClass('mdl-select'),
       $sync = $('<select/>').addClass('hidden').appendTo($wrapper),
       selected = _.find(params.options, function(o) { return o.selected; }),
-      $tf = _.material.textfield({
+      $tf = window.material.textfield({
         appendTo: $wrapper,
         label: params.label,
         value: !_.isUndefined(selected) ? selected.label : '',
@@ -2491,7 +2490,7 @@
         clear: false,
         helper: params.helper
       }),
-      $arrow = $(_.material.icon('keyboard_arrow_down')),
+      $arrow = $(window.material.icon('keyboard_arrow_down')),
       $dropdown = $('<div/>').addClass('mdl-select__dropdown'),
       $options = $('<ul/>').addClass('mdl-select__options').appendTo($dropdown);
 
@@ -2630,7 +2629,7 @@
 
     _.each(options, function (o) {
       $('<li/>').append(
-        _.material.button({
+        window.material.button({
           label: o.menu || o.label,
           disabled: o.disabled
         }).data('option', o)
@@ -2929,7 +2928,7 @@
       return;
     }
 
-    $chip = _.material.chip({
+    $chip = window.material.chip({
       appendTo: this.$container,
       prefix: this.params.prefix ? pfx : false,
       label: label,
@@ -2954,7 +2953,7 @@
   MChips.prototype.prependAdd = function() {
     var
       mchips = this,
-      $chip = _.material.chip({
+      $chip = window.material.chip({
         label: '<input class="mdl-chip__input"/>',
         action: 'done',
         onAction: function($c) {
@@ -3002,7 +3001,7 @@
    * @namespace
    * @type {Object}
    */
-  const _material = _.material = {
+  window.material = {
     /**
      * Material Login Dialog.
      *
@@ -3021,11 +3020,11 @@
       var
         iLogin,
         dlgLang = params.languages[params.lang],// get dialog language from current settings
-        $languages = _.material.button({ label: TEMPLATES.icon({ icon: 'translate' }) })
+        $languages = window.material.button({ label: TEMPLATES.icon({ icon: 'translate' }) })
           .attr('id', 'mb-login-translate'),
         $lmenu,
         $mi,
-        $dlg = _.material.dialog({
+        $dlg = window.material.dialog({
           appendTo: 'body',
           title: params.header,
           content: '',
@@ -3084,7 +3083,7 @@
       if (_.isString(params.footer)) {
         $dlg.append('<div class="mdl-login__footer" style="height:32px">' + params.footer + '</div>');
         // TODO params.cls
-        oLogin.$footer = $dlg.find('.mdl-login__footer').addClass(_.material.WHITE_ON_BLACK);
+        oLogin.$footer = $dlg.find('.mdl-login__footer').addClass(window.material.WHITE_ON_BLACK);
       }
 
       // TODO move css to stylesheet file
@@ -3106,7 +3105,7 @@
 
       if (params.rememberPos === 'actions') {
         $dlg.find('.mdl-login__options').hide();
-        _.material.switch({
+        window.material.switch({
           appendTo: $dlg.find('.mdl-dialog__actions'),
           label: dlgLang.remember,
           checked: ''
@@ -3136,7 +3135,7 @@
       if (params.termsOfUse) {
         $dlg.find('button[data-name=agree]').prop('disabled', true);
         oLogin.$tou = $('<div/>').addClass('mdl-login__tou mdl-dialog__content').insertBefore($dlg.find('.mdl-dialog__actions'));
-        _.material.checkbox({
+        window.material.checkbox({
           appendTo: oLogin.$tou,
           label: dlgLang.touAccept
         })
@@ -3152,7 +3151,7 @@
         oLogin.$tou.append('<a href="//" class="mdl-login__toulink mdl--left" data-lang="touLink">' + dlgLang.touLink + '</a>');
         oLogin.$tou.find('.mdl-login__toulink').click(function() {
           $dlg.get(0).close();
-          _.material.popup({
+          window.material.popup({
             title: '',
             content: function($cnt) {
               $cnt.parents('.mdl-layout').find('.mdl-textfield').remove();
@@ -3176,7 +3175,7 @@
         $dlg.find('.mdl-login__footer').append(oLogin.$imprint);
         oLogin.$imprint.click(function() {
           $dlg.get(0).close();
-          _.material.popup({
+          window.material.popup({
             title: '',
             content: function($cnt) {
               $cnt.parents('.mdl-layout').find('.mdl-textfield').remove();
@@ -3353,7 +3352,7 @@
 
       // build tabs
       //
-      forms.tabs = _.material.tabs({
+      forms.tabs = window.material.tabs({
         appendTo: formsParams.appendTo || 'body',
         title: formsParams.title,
         hideHeader: formsParams.hideHeader,
@@ -3377,7 +3376,7 @@
 
       if (formsParams.drawer) {
         forms.tabs.drawer.find('.mdl-layout-title').text(formsParams.drawer.title);
-        _.material.list({
+        window.material.list({
           appendTo: forms.tabs.drawer,
           singleLine: formsParams.drawer.singleLine,
           items: formsParams.drawer.items
@@ -3515,10 +3514,10 @@
       // TODO create param to enable/disable clear button
       if (params.clear) {
         $inp.css({paddingRight: 32}); // reduce input size for clear button
-        $clear = _material.button({
+        $clear = window.material.button({
           appendTo: $tf,
           icon: true,
-          label: _material.icon('clear')
+          label: window.material.icon('clear')
         }).css({right: 0}).hide().click(function () {
           setValue('');
           $inp.trigger('change');
@@ -3567,8 +3566,8 @@
         console.assert(window.mdDateTimePicker, 'Plugin "mdDateTimePicker.js" not found!');
         var
           i18n = params.i18n,
-          $dteBtn = _material.button({
-            label: _material.icon('today'),
+          $dteBtn = window.material.button({
+            label: window.material.icon('today'),
             icon: true,
             cls: 'mdl-textfield__datepicker',
             attr: {
@@ -3867,7 +3866,7 @@
         params.appendTabs = $(CLASS_LAYOUT_HEADER, mtabs.header);
       }
 
-      console.assert(mtabs.header, '_.material.tabs: header property not defined!');
+      console.assert(mtabs.header, 'window.material.tabs: header property not defined!');
       if (!mtabs.header) { return false; }
 
       mtabs.tabbar = $(CLASS_LAYOUT_TABBAR, mtabs.header);
@@ -4063,10 +4062,10 @@
         activeTab = conf.$panels.index($('#'+activeTab));
       }
 
-      var mtabs = _.material.tabs({
+      var mtabs = window.material.tabs({
         appendTo: conf.$wrapper,
         hideHeader: true,
-        colorClass: params.colorClass || _.material.WHITE_ON_DARKGREY,
+        colorClass: params.colorClass || window.material.WHITE_ON_DARKGREY,
         refs: conf.refs,
         store: params.store,
         active: activeTab,
@@ -4198,8 +4197,8 @@
         }
         else {
           $btn.find('.mdl-button__label').css('paddingRight', 10);
-          $iconRight = _.material.spinner({ single: true, active: true }).addClass('mdl-button__icon-right');
-          // $iconRight = _.material.progress({indeterminate:true}).width(120).height(2).css('top', '-2px')
+          $iconRight = window.material.spinner({ single: true, active: true }).addClass('mdl-button__icon-right');
+          // $iconRight = window.material.progress({indeterminate:true}).width(120).height(2).css('top', '-2px')
         }
         $btn.append($iconRight);
       }
@@ -4252,7 +4251,7 @@
       }
 
       // popup menu for button
-      // TODO move to _.material.dropdown? this version has no positioning and event handler
+      // TODO move to window.material.dropdown? this version has no positioning and event handler
       if (params.menu) {
         var $menu = $(TEMPLATES.menu({id: params.id, cls: 'mdl-menu--bottom-right'})).appendTo('body');
         // params: [{id, item, icon}]
@@ -4290,7 +4289,7 @@
      * @returns {*|HTMLElement}
      */
     fab: function(icon, params){
-      console.assert(icon, '_.material.fab: icon required!');
+      console.assert(icon, 'window.material.fab: icon required!');
 
       var
         $fab = $(TEMPLATES.fab({ icon: icon })),
@@ -4312,7 +4311,7 @@
       window.componentHandler.upgradeElement(fab);
 
       params.disabled && fab.MaterialButton.disable();
-      params.title && _.material.tooltip(params);
+      params.title && window.material.tooltip(params);
 
       if (params.menu) {
         var $menu = $(TEMPLATES.menu({ id: params.id, cls: 'mdl-menu--bottom-right' })).appendTo('body');
@@ -4560,7 +4559,7 @@
       if (params.search) {
         var $search = $('<div class="mdl-layout-search"/>').css({ padding: '8px 16px 0' });
         $drawer.find('.mdl-layout-title').after($search);
-        _.material.textfield({
+        window.material.textfield({
           appendTo: $search,
           label: params.search.placeholder || 'Durchsuche Einträge...',
           width: '100%',
@@ -4669,7 +4668,7 @@
 					}
           $menu.append($item);
 					if (li.body) {
-            _.material.tooltip({
+            window.material.tooltip({
               id: itemId,
               title: li.title + ': ' + li.body,
               cls: 'mdl-tooltip--right'
@@ -4943,7 +4942,7 @@
             left: $search.offset().left
           });
 
-        tabs = _.material.tabs({
+        tabs = window.material.tabs({
           appendTo: $dropdown,
           hideHeader: true,
           hideButtons: true,
@@ -5166,7 +5165,7 @@
       else {
         window.componentHandler.upgradeElement(dlg);
       }
-      console.assert(_.isFunction(dlg.showModal), '_.material.dialog: HTML dialog element not initialized!');
+      console.assert(_.isFunction(dlg.showModal), 'window.material.dialog: HTML dialog element not initialized!');
 
       if (_.isFunction(params.on.beforeShow)) {
         params.on.beforeShow.call(dlg);
@@ -5281,7 +5280,7 @@
     /**
      * Material Radio Group.
      *
-     * _.material.radio([
+     * window.material.radio([
      *   { id: 'mdl-radio-copy', value: 'copy', label: 'Copy', checked: true },
      *   { id: 'mdl-radio-move', value: 'move', label: 'Move' }
      * ], {
@@ -5379,7 +5378,7 @@
       $lbl = $selector.find('label');
       label = $lbl.text() || $selector.text();
 
-      return _.material.checkbox({
+      return window.material.checkbox({
         name: $inp.attr('name'),
         value: $inp.val(),
         label: $.trim(label),
@@ -5424,7 +5423,7 @@
             disabled: $o.is(':disabled')
           });
         });
-        seli = _.material.select({
+        seli = window.material.select({
           appendTo: params.appendTo || $sel.parent(),
           options: opts,
           name: params.name,
@@ -5507,11 +5506,11 @@
           const $text = $(this).find('.mdl-chip__text');
           const text = $text.text();
 
-          _.material.dialog({
+          window.material.dialog({
             // title: 'Edit',
             content: function() {
               const $content = $('<div/>');
-              _.material.textfield({
+              window.material.textfield({
                 appendTo: $content,
                 // label: 'new value',
                 value: text,
@@ -5585,11 +5584,11 @@
      */
     tooltip: function(params){
       if (_.isEmpty(params) || !params.id) {
-        console.warn('_.material.tooltip: params.id required!');
+        console.warn('window.material.tooltip: params.id required!');
         return;
       }
       if (!params.title) {
-        console.warn('_.material.tooltip: params.title required!');
+        console.warn('window.material.tooltip: params.title required!');
         return;
       }
 
@@ -5652,7 +5651,7 @@
         $list = $('<ul/>').addClass('mdl-dropdown__items').appendTo($dropdown);
 
       _.each(params.items, function(o) {
-        $('<li/>').append(_.material.button(o).data('item', o))
+        $('<li/>').append(window.material.button(o).data('item', o))
           .attr('data-val', o.value)
           .addClass(o.selected ? 'is-selected' : '')
           .appendTo($list);
@@ -5734,7 +5733,7 @@
       window.componentHandler.upgradeElement($slider.get(0));
 
       slider = $slider.get(0).MaterialSlider;
-      $tf = _.material.textfield({
+      $tf = window.material.textfield({
         prependTo: $slider.parent(),
         width: 50,
         name: params.name,
@@ -5751,7 +5750,7 @@
       params.scala && buildScala();
 
       if (params.tooltip) {
-        $tooltip = _.material.tooltip({
+        $tooltip = window.material.tooltip({
           id: params.id,
           title: '' + (params.value || '0')
         });
@@ -5864,9 +5863,9 @@
       }
 
       if (_.isFunction(params.on.close)) {
-        _.material.button({
+        window.material.button({
             appendTo: $article.find('.mdl-layout__header-row'),
-            label: _.material.icon('close'),
+            label: window.material.icon('close'),
             icon: true
           })
           .click(function () {
@@ -5921,7 +5920,7 @@
           }
         }
       }, params);
-      return _material.dialog(params);
+      return window.material.dialog(params);
     }
   };
 
@@ -6209,9 +6208,9 @@
 
     // shortcut for progress dialog
     progress: function(title, open){
-      return _.material.dialog({
+      return window.material.dialog({
         title: title,
-        content: _.material.progress({ indeterminate: true }),
+        content: window.material.progress({ indeterminate: true }),
         open: open,
         disagree: false,
         agree: false
@@ -6219,21 +6218,21 @@
     }
   });
 
-  _.material._VERSION = WATCHDOG.__version;
-  _.material.DEFAULTS = DEFAULTS;
+  window.material._VERSION = WATCHDOG.__version;
+  window.material.DEFAULTS = DEFAULTS;
 
-  _.material.TRANSPARENT = 'mdl-layout__header--transparent';
-  _.material.COLOR_BLACK = 'mdl-color--black';
-  _.material.COLOR_WHITE = 'mdl-color--white';
-  _.material.COLOR_DARKGREY = 'mdl-color--grey-800';
-  _.material.WHITE_ON_BLUE = 'mdl-color--blue-900 mdl-color-text--white';
-  _.material.WHITE_ON_BLACK = 'mdl-color--black mdl-color-text--white';
-  _.material.WHITE_ON_DARKGREY = 'mdl-color--grey-800 mdl-color-text--white';
-  _.material.WHITE_ON_GREY = 'mdl-color--grey-300 mdl-color-text--white';
-  _.material.BLACK_ON_WHITE = 'mdl-color--white mdl-color-text--black';
-  _.material.BLACK_ON_GREY = 'mdl-color--grey-300 mdl-color-text--black';
-  _.material.BLACK_ON_YELLOW = 'mdl-color--yellow-900 mdl-color-text--black';
-  _.material.WHITE_ON_LIGHTBLUE = 'mdl-color--blue-300 mdl-color-text--white';
-  _.material.WHITE_ON_LIGHTERBLUE = 'mdl-color--blue-200 mdl-color-text--white';
+  window.material.TRANSPARENT = 'mdl-layout__header--transparent';
+  window.material.COLOR_BLACK = 'mdl-color--black';
+  window.material.COLOR_WHITE = 'mdl-color--white';
+  window.material.COLOR_DARKGREY = 'mdl-color--grey-800';
+  window.material.WHITE_ON_BLUE = 'mdl-color--blue-900 mdl-color-text--white';
+  window.material.WHITE_ON_BLACK = 'mdl-color--black mdl-color-text--white';
+  window.material.WHITE_ON_DARKGREY = 'mdl-color--grey-800 mdl-color-text--white';
+  window.material.WHITE_ON_GREY = 'mdl-color--grey-300 mdl-color-text--white';
+  window.material.BLACK_ON_WHITE = 'mdl-color--white mdl-color-text--black';
+  window.material.BLACK_ON_GREY = 'mdl-color--grey-300 mdl-color-text--black';
+  window.material.BLACK_ON_YELLOW = 'mdl-color--yellow-900 mdl-color-text--black';
+  window.material.WHITE_ON_LIGHTBLUE = 'mdl-color--blue-300 mdl-color-text--white';
+  window.material.WHITE_ON_LIGHTERBLUE = 'mdl-color--blue-200 mdl-color-text--white';
 
 })(window.jQuery);
