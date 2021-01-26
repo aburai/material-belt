@@ -1,5 +1,5 @@
 /**
- * Material Belt - v1.4.7 (c) 2016-2019; aburai
+ * Material Belt - v1.4.9 (c) 2016-2021; aburai
  *                  _            _       _   _          _ _
  *  _ __ ___   __ _| |_ ___ _ __(_) __ _| | | |__   ___| | |_
  * | '_ ` _ \ / _` | __/ _ \ '__| |/ _` | | | '_ \ / _ \ | __|
@@ -8,7 +8,7 @@
  *
  * @file material-belt.js
  * @author André Bunse (aburai@github.com) <andre.bunse@gmail.com>
- * @version 1.4.7
+ * @version 1.4.9
  * @license Material Belt is released under the ISC license.
  *
  * Extend the mdl library from Jason Mayes.
@@ -33,9 +33,11 @@
   // TODO support require or module.export
   console.assert(typeof window.material === 'undefined', 'Namespace window.material already defined!');
 
-  var
+  let KEYCODES_ACTIVE = false
+
+  const
   WATCHDOG = {
-    __version: '1.4.7',
+    __version: '1.4.9',
     __build: '@BUILD@',
     __buildDate: '@BUILDDATE@'
   },
@@ -145,6 +147,7 @@
       '<textarea class="mdl-textfield__input" id="<%= id %>" rows="<%= rows %>"></textarea>' +
       '<label class="mdl-textfield__label" for="<%= id %>"><%= label %></label>' +
       '<span class="mdl-textfield__error"></span>' +
+      '<span class="mdl-textfield__helper"></span>' +
       '</div>'
     ),
     list: _.template('<ul class="mdl-list"></ul>'),
@@ -192,21 +195,6 @@
       '</div>' +
       '</div>'
     ),
-    // params: icon, label, message
-    stepper: _.template('<li class="mdl-step mdl-step--optional">' +
-        '<span class="mdl-step__label">' +
-          '<span class="mdl-step__label-indicator">' +
-            '<span class="mdl-step__label-indicator-content"><%= icon %></span>' +
-          '</span>' +
-          '<span class="mdl-step__title">' +
-            '<span class="mdl-step__title-text"><%= label %></span>' +
-            '<span class="mdl-step__title-message"><%= message %></span>' +
-          '</span>' +
-        '</span>' +
-        '<div class="mdl-step__content"></div>' +
-        '<div class="mdl-step__actions"></div>' +
-      '</li>'
-    ),
     // params: title, content
     dialog: _.template('<dialog class="mdl-dialog">' +
       '<h4 class="mdl-dialog__title hidden"><%= title %></h4>' +
@@ -214,8 +202,8 @@
         '<p><%= content %></p>' +
       '</div>' +
       '<div class="mdl-dialog__actions hidden">' +
-        '<button type="button" class="mdl-button hidden" data-name="agree"><%= agree %></button>' +
-        '<button type="button" class="mdl-button hidden" data-name="disagree"><%= disagree %></button>' +
+        '<button type="button" class="mdl-button mdl-js-button mdl-js-ripple-effect hidden" data-name="agree"><%= agree %></button>' +
+        '<button type="button" class="mdl-button mdl-js-button mdl-js-ripple-effect hidden" data-name="disagree"><%= disagree %></button>' +
       '</div>' +
       '</dialog>'
     ),
@@ -256,7 +244,7 @@
     menu: _.template('<ul class="mdl-menu <%= cls %> mdl-js-menu mdl-js-ripple-effect" data-mdl-for="<%= id %>"></ul>'),
     // params: id, item, icon
     menuItem: _.template('<li id="<%= id %>" class="mdl-menu__item">' +
-      '<div style="display:inline-block;width:85%">' +
+      '<div style="display:inline-block">' +
         '<span style="padding-right:30px;padding-left:4px;"><%= item %></span>' +
       '</div>' +
       '<div style="display:inline-block">' +
@@ -290,10 +278,8 @@
     ),
     // params: icon
     icon: _.template('<i class="material-icons"><%= icon %></i>'),
-    // params:
-    actionbar: _.template('<div class="mdl-actionbar"></div>'),
     // params: id
-    tooltip: _.template('<div class="mdl-tooltip mdl-tooltip--large" for="<%= id %>"></div>'),
+    tooltip: _.template('<div class="mdl-tooltip" for="<%= id %>"></div>'),
     // params: -
     spinner: _.template('<div class="mdl-spinner mdl-js-spinner"></div>'),
     // params: -
@@ -325,24 +311,6 @@
       '</main>' +
       '</div>'
     ),
-    // params: label
-    chips: _.template('<div class="mdl-chips__wrapper">' +
-      '<div class="mdl-chips__label mdl-label"><%= label %></div>' +
-      '<div class="mdl-chips__container">' + '' +
-        '<textarea class="mdl-chips__sync hidden"/>' +
-      '</div>' +
-      '</div>'
-    ),
-    // params: prefixAction, prefix, label, action
-    chip: _.template('<span class="mdl-chip">' +
-      '<span class="mdl-chip__action mdl-chip__action-prefix hidden"><i class="material-icons"><%= prefixAction %></i></span>' +
-      // '<a href="//" class="mdl-chip__action mdl-chip__action-prefix hidden"><i class="material-icons"><%= prefixAction %></i></a>' +
-      '<span class="mdl-chip__contact hidden"><%= prefix %></span>' +
-      '<span class="mdl-chip__text"><%= label %></span>' +
-      '<span class="mdl-chip__action hidden"><i class="material-icons"><%= action %></i></span>' +
-      // '<a href="//" class="mdl-chip__action hidden"><i class="material-icons"><%= action %></i></a>' +
-      '</span>'
-    ),
     // params: min, max, value
     slider: _.template('<div class="mdl-slider__wrapper">' +
       '<input class="mdl-slider mdl-js-slider" type="range" min="<%= min %>" max="<%= max %>" value="<%= value %>" tabindex="0">' +
@@ -368,54 +336,10 @@
       tooltip: false,
       scala: false
     },
-    chips: {
-      label: '',
-      prefix: false,
-      duplicates: false
-    },
-    chip: {
-      label: '',
-      prefixAction: '',
-      prefix: false,
-      prefixClass: '',
-      action: false,
-      actionClass: 'mdl-chip--deletable',
-      on: {
-        prefix: $.noop,
-        action: $.noop,
-        edit: $.noop
-      }
-    },
-    select: {
-      label: '',
-      padded: true,
-      bottomMenu: true
-    },
-    actionbar: {
-      appendTo: 'body',
-      theme: 'dark',
-      noMore: false,
-      hideMore: true,
-      debug: false
-    },
-    table: {
-      wrap: false,
-      dense: false,
-      selectable: false,
-      shadow: false
-    },
     snackbar: {
       message: '',
       timeout: 10000,
       type: 'info'
-    },
-    stepper: {
-      horizontal: true,
-      linear: true,
-      alternateLabels: false,
-      on: {
-        next: $.noop
-      }
     },
     tabs: {
       title: '',
@@ -435,10 +359,11 @@
       appendTo: '',
       value: '',
       floatLabel: true,
-      spellCheck: false,
+      spellcheck: false,
       date: false,
       overlay: false,
       clear: true,
+      resize: true,
       helper: '',
       i18n: {
         agree: 'Übernehmen',
@@ -464,6 +389,7 @@
       icon: false
     },
     fab: {
+      appendTo: 'body',
       colored: true
     },
     fabMulti: {
@@ -567,7 +493,9 @@
         language: $.noop
       }
     },
-    list: {},
+    list: {
+      singleLine: true
+    },
     drawer: {
       title: '',
       overlay: true,
@@ -579,13 +507,16 @@
         top: 0,
         bottom: 0
       },
-      width: {
+      defaultwidth: {
         mini: 80,
         fixed: 256,
         maxi: 320
       }
     },
     dropdown: {
+      appendTo: 'body',
+      offsetX: 0,
+      offsetY: 0,
       on: {
         click: $.noop,
         close: $.noop,
@@ -594,6 +525,7 @@
     },
     popup: {
       title: '',
+      gridsize: [2, 8],
       on: {
         loaded: $.noop,
         close: $.noop
@@ -602,7 +534,6 @@
   },
 
   KEYCODES = [],
-  KEYCODES_ACTIVE = false,
 
   CLICKOUT = [],
 
@@ -816,24 +747,6 @@
           checkState(nc);
         });
       }
-    },
-    // from material-icons to mdi
-    // iconName => mdi:name
-    convert_icon: function(el, iconName, callback){
-      if (!el || !iconName) { return; }// params required
-      if (!/^mdi:/.test(iconName)) { return; }// no valid mdi name
-
-      var $el = $(el);
-
-      if (!$el.is('.material-icons')) {
-        $el = $el.find('.material-icons');
-      }
-
-      $el
-        .text('').removeClass('material-icons')// remove stock classifier
-        .addClass('mdi mdi-24px ' + iconName.replace(':', '-'));// add mdi classifier
-
-      _.isFunction(callback) && callback($el);
     }
   };
 
@@ -948,2048 +861,6 @@
 
     $msg.text(msg);
     msg ? $msg.parent().show().animateCss('bounceIn') : $msg.parent().hide();
-  };
-
-  // ====== Material Action Bar ===============================================
-  /**
-   * Actionbar: Action definition
-   *
-   * # required properties #
-   *
-   * "name": {String} (must be unique)
-   *
-   * # common properties #
-   *
-   * "href": {String} (URL, javascript:)
-   * "target": {String} (_blank => open in new tab/window)
-   * "label": {String}
-   * "title": {String} (Tooltip, Hint)
-   * "badge": {String/Number}
-   * "disabled": {Boolean}
-   * "hidden": {Boolean}
-   * "checked": {Booolean}
-   * "cls": {String} (additional css class/es)
-   *
-   * # component properties #
-   *
-   * "icon": {String} (Material Icon, Material Design Icons => prefix mdi:)
-   * "iconText": {String}
-   * "select": {Array}
-   * "checkbox": {Boolean}
-   * "toggle": {Boolean}
-   * "width": {Number}
-   */
-
-  /**
-   * Class Material Action Bar.
-   * @constructor ActionBar
-   * @param params
-   * @param {Function} callback
-   */
-  function ActionBar(params, callback) {
-    this.params = $.extend({}, DEFAULTS.actionbar, params);
-    this.name = this.params.name || 'mdl-actionbar-' + $.guid++;
-    this.$element = $(TEMPLATES.actionbar(this.params)).data('instance', this);
-    this.actions = {};
-    this.callback = callback || $.noop;
-    this._init();
-  }
-
-  ActionBar.prototype._init = function() {
-    if (!_.layout) {
-      console.error('window.material.actionbar: Borderlayout Belt not found!');
-      return;
-    }
-
-    var
-      ab = this,
-      params = this.params,
-      fixedKeys,
-      fixedGroups,
-      layoutParams = {
-        name: params.name,
-        theme: 'material',
-        flags: { store: false },
-        on: {
-          resize: function() {
-            ab.recalc();
-          }
-        }
-      };
-
-    this.$element.addClass(params.theme === 'dark' ? 'mdl-actionbar--dark' : 'mdl-actionbar--light');
-    this.$element.addClass(params.direction === 'vertical' ? 'mdl-actionbar--vertical' : '');
-    params.appendTo && this.$element.appendTo(params.appendTo);
-    params.prependTo && this.$element.prependTo(params.prependTo);
-
-    if (params.direction !== 'vertical') {
-      layoutParams.sreg = 'c-,e-';
-      layoutParams.east = { size: 289 };
-    }
-    else {
-      layoutParams.sreg = 'c-,s-';
-      layoutParams.south = { size: 289 };
-    }
-
-    _.layout.create(this.$element, layoutParams, function(layout) {
-      ab.layout = layout;
-
-      ab.$center = layout.panes.center.children().first().addClass('mdl-actionbar__scroll');
-      if (params.direction !== 'vertical') {
-        ab.$east = layout.panes.east.children().first().addClass('mdl-actionbar__fixed');
-      }
-      else {
-        ab.$south = layout.panes.south.children().first().addClass('mdl-actionbar__fixed');
-      }
-
-      !params.noMore && ab.addMore();
-
-      // insert fixed action group
-      // show / hide east layout region
-      if (!_.isEmpty(params.fixed)) {
-        layout.show(params.direction !== 'vertical' ? 'east' : 'south');
-        // check fixed group definition
-        // if only actions, wrap in group definition
-        fixedKeys = _.keys(_.first(params.fixed));
-        if (!_.includes(fixedKeys, 'actions')) {
-          fixedGroups = [{ id: 'fixed', actions: params.fixed }];
-        }
-        else {
-          fixedGroups = params.fixed;
-        }
-        insertGroups(fixedGroups, params.direction !== 'vertical' ? ab.$east : ab.$south);
-      }
-      else {
-        layout.hide(params.direction !== 'vertical' ? 'east' : 'south');
-      }
-
-      insertGroups(params.groups, ab.$center);
-
-      ab.recalc();
-      ab._bind();
-
-      // TODO not all components are already upgraded
-      // this may cause errors if someone use the instance in the callback
-      ab.callback();
-    });
-
-    function insertGroups(groups, $appendTo) {
-      // insert all other group definitions
-      _.each(groups, function (group) {
-        // filter out invalid action definitions
-        const groupActions = _.filter(group.actions, function (ac) {
-          return !_.isEmpty(ac) && !_.has(ab.actions, ac.name);
-        });
-
-        // skip groups with no actions
-        if (!_.isEmpty(groupActions)) {
-          const $group = $('<div/>')
-            .addClass('mdl-actionbar__group mdl-actionbar__group--more mdl--left')
-            .attr('data-id', group.id)
-            .appendTo($appendTo);
-          ab.addGroup(groupActions, $group);
-        }
-      });
-    }
-  };
-
-  ActionBar.prototype.destroy = function() {
-    // remove menus
-    $('.mdl-menu[data-uid="' + this.name + '"]').parent().remove();
-    // remove tooltips
-    $('.mdl-tooltip[data-uid="' + this.name + '"]').remove();
-    // unbind event handler
-    this.$element.off('*');
-    this.$moreMenu.off('*');
-    // call existing destroy methods
-    this.layout.destroy();
-    // remove outer wrapper
-    this.$element.remove();
-  };
-
-  // Bind Eventhandler:
-  //   Icon Button clicked
-  //   Select Button clicked
-  //   Select changed
-  //   Checkbox toggled / changed
-  ActionBar.prototype._bind = function() {
-    var
-      ab = this;
-
-    // button click handler for normal icon actions
-    this.$element.on('click.mdl-actionbar', 'button.mdl-actionbar__item', function() {
-      var actionName = $(this).attr('data-action');
-      actionName && ab.callAction(actionName, this);
-    });
-
-    // button click handler for select+button controls
-    this.$element.on('change.mdl-actionbar', '.mdl-actionbar__item > select', function() {
-      var
-        $item = $(this).parent(),
-        action = $item.attr('data-action'),
-        $opt = $(this).children(':selected'),
-        actionCallback = _.go('params.on.action', ab);
-
-      // sync selected option with action in the actionbar
-      if (ab.$moreMenu) {
-        $('#mi-' + action, ab.$moreMenu)
-          .find('option[value="' + $opt.val() + '"]').prop('selected', true);
-      }
-
-      ab.callAction(action, this, { value: $opt.val() });
-
-      /*
-      if (_.isFunction(actionCallback)) {
-        // if callback return false, we break up
-        if (actionCallback.call(this, action, $opt, { value: $opt.val() }) === false) {
-          //return;
-        }
-      }
-      */
-    });
-
-    // button click handler for select+button controls
-    this.$element.on('click.mdl-actionbar', '.mdl-actionbar__item-button', function() {
-      var
-        $sel = $(this).prev(),
-        $opt = $sel.children(':selected'),
-        action = $opt.data(),
-        actionName;
-
-      // no action on the option
-      // get informations from the select
-      if (_.isEmpty(action)) {
-        actionName = $sel.data('name');
-      }
-      else {
-        actionName = action.name || $sel.data('name');
-      }
-
-      ab.callAction(actionName);
-    });
-
-    // checkbox change handler
-    this.$element.on('change', '.mdl-actionbar__item .mdl-checkbox__input', function() {
-      var $mdlcbx = $(this).parent();
-      ab.callAction($mdlcbx.attr('data-action'), $mdlcbx.get(0), { value: this.checked });
-    });
-    this.$element.on('change', '.mdl-actionbar__item .mdl-switch__input', function() {
-      var $toggle = $(this).parents('.mdl-switch');
-      ab.callAction($toggle.attr('data-action'), $toggle.get(0).MaterialSwitch);
-    });
-
-    // textfield change handler
-    this.$element.on('change', '.mdl-actionbar__item .mdl-textfield__input', function() {
-      var $tf = $(this).parents('.mdl-textfield');
-      ab.callAction($tf.attr('data-action'), $tf.get(0).MaterialTextfield);
-    });
-
-    if (this.$moreMenu && this.$moreMenu.length) {
-      this.$moreMenu
-        .on('click.mdl-actionbar', '.mdl-actionbar__more-button', function() {
-          var $this = $(this);
-          if ($this.is('.disabled') || $this.is('[disabled]')) {
-            return false;
-          }
-
-          ab.callAction($this.data('action'), this);
-        })
-        // set select in actionbar to selected option from more menu
-        .on('change.mdl-actionbar', 'select', function() {
-          var
-            $li = $(this).parents('.mdl-actionbar__more-select'),
-            actionName = $li.data('action'),
-            $action = $('[data-action="' + actionName + '"]', ab.$element),
-            selInst = $action.find('.mdl-select').data('instance');
-
-          (selInst instanceof MSelect) && selInst.set(this.value);
-        })
-        .on('click.mdl-actionbar', '.mdl-actionbar__item-button', function() {
-          var
-            $li = $(this).parents('.mdl-menu__item'),
-            $sel = $li.find('select'),
-            $opt = $sel.children(':selected'),
-            action = $opt.data(),
-            actionName;
-
-          // no action on the option
-          // get informations from the select
-          if (_.isEmpty(action)) {
-            actionName = $sel.data('name');
-          }
-          else {
-            actionName = action.name || $sel.data('name');
-          }
-
-          ab.callAction(actionName);
-        })
-        // TODO must we react on this clicks?
-        // TODO the buttons after the select triggers by .mdl-actionbar__item-button
-        .on('click.mdl-actionbar', '.mdl-actionbar__more-select', function(event) {
-          // otherwise the click bubbles up and close the menu
-          event.stopImmediatePropagation();
-          return false;
-          // NOTE IE fires event on option too
-          //if ($(event.target).is('select') || $(event.target).is('option')) {
-          //  event.stopImmediatePropagation();
-          //  return false;
-          //}
-        //
-        //  var
-        //    $sel = $(this).find('select'),
-        //    $opt = $sel.children(':selected'),
-        //    action = $opt.data(),
-        //    actionName;
-        //
-        //  if (_.isEmpty(action)) {
-        //    actionName = $sel.data('name');
-        //  }
-        //  else {
-        //    actionName = action.name || $sel.data('name');
-        //  }
-        //  ab.callAction(actionName, this);
-        });
-
-      // keyboard handling: open/close the more menu
-      Mousetrap.bind('* o', function() {
-        ab.$more.click();
-      });
-    }
-
-    // TODO mehrere Actionbars, welche hat den Fokus?
-    //ab.params.trap && Mousetrap.bind(['* * 1', '* * 2'], function(event) {
-    //  var $buttons = this.getButtons(), which = parseInt(event.key, 10) - 1;
-    //  $($buttons.get(which)).click();
-    //}.bind(this));
-    //ab.params.trap && Mousetrap.bind(['* * ?'], function() {
-    //  var $btns = this.getButtons(), actions = [];
-    //  $btns.each(function(i) {
-    //    actions.push({ name: $(this).data('action'), label: i+1 });
-    //  });
-    //  this.badge(actions);
-    //}.bind(this));
-  };
-
-  ActionBar.prototype.getButtons = function() {
-    var $visibleGroups = this.$center.find('.mdl-actionbar__group');
-    var $buttons = $visibleGroups.find('.mdl-button[data-action]:visible')
-      .not(this.$more)
-      .not('[disabled]');
-    return $buttons;
-  };
-
-  ActionBar.prototype.callAction = function(actionName, context, data) {
-    var
-      action = this.actions[actionName],
-      actionData = _.extend({ action: actionName }, data),
-      bindTo,
-      actionCallback = _.go('params.on.action', this);
-
-    if (_.isFunction(actionCallback)) {
-      bindTo = _.go('bindTo', action) || action;
-      // if callback return false, we break up
-      if (this.params.returnData) {
-        if (actionCallback.call(context || this, actionName, actionData) === false) {
-          return;
-        }
-      }
-      else if (actionCallback.call(context || this, actionName, bindTo, action, context) === false) {
-        return;
-      }
-    }
-
-    _.open(action);
-  };
-
-  // build actions for group
-  //   - labeled button with icon
-  //   - icon button
-  //   - select with button
-  //   - toggle
-  //   - checkbox
-  //   - textfield
-  ActionBar.prototype.addGroup = function(group, $appendTo) {
-    let gid = _.uniqueId('ab-g');
-    // build group wrapper
-    // swap actions property
-    if (!$appendTo && !_.isEmpty(group)) {
-      $appendTo = $('<div/>')
-        .addClass('mdl-actionbar__group mdl-actionbar__group--more mdl--left')
-        .attr('data-id', group.id)
-        .appendTo(this.$center);
-      gid = group.id;
-      group = group.actions;
-    }
-    else {
-      gid = $appendTo.data('id');
-    }
-
-    if (_.isEmpty(group)) {
-      $appendTo.remove();
-      return;
-    }// no actions -> remove container, prevent not nessecary html
-
-    const ab = this;
-
-    // remove all invalid action definitions
-    // invalid = no object, empty object or no action name!!
-    group = _.filter(group, function (action) {
-      return !_.isEmpty(action) && !_.isUndefined(action.name);
-    });
-
-    if (_.isEmpty(group)) {
-      $appendTo.remove();
-      return;
-    }// no actions -> hide container
-
-    _.each(group, function (action) {
-      if (!action.name) {
-        ab.params.debug !== false && console.warn('window.material.actionbar: invalid action definition! missing property "name"', action);
-      }
-      if (ab.actions[action.name]) {
-        ab.params.debug !== false && console.warn('window.material.actionbar: duplicate action definition! name already defined', action, ab.actions);
-        return;
-      }
-
-      ab.actions[action.name] = action;
-      ab.actions[action.name].gid = gid;
-
-      // CHECKBOX
-      // TODO more menu control
-      if (action.checkbox) {
-        action.$control = window.material.checkbox({
-            appendTo: $appendTo,
-            label: action.label,
-            checked: action.checked
-          })
-          .attr('data-action', action.name)
-          .data('name', action.name)
-          .addClass('mdl-actionbar__item mdl--left' + (action.hidden ? ' hidden' : ''))
-          .prop('disabled', action.disabled);
-      }
-      else if (action.textfield) {
-        ab.addTextfield(action, $appendTo);
-      }
-      // CHECKBOX AS TOGGLE
-      // TODO more menu control
-      else if (action.toggle) {
-        action.$control = window.material.toggle({
-          appendTo: $appendTo,
-          label: action.label,
-          checked: action.checked
-        })
-          .width(action.width || 180)// TODO calc width but overwrite 100% from css
-          .attr('data-action', action.name)
-          .data('name', action.name)
-          .addClass('mdl-actionbar__item mdl--left' + (action.hidden ? ' hidden' : ''))
-          .prop('disabled', action.disabled);
-      }
-      // LABEL BUTTON WITH OPTIONAL ICON
-      else if (action.label && action.icon) {
-        ab.addButton(action, $appendTo);
-      }
-      // ICON BUTTON
-      else if (action.icon || action.iconText) {
-        ab.addIcon(action, $appendTo);
-      }
-      // SELECT
-      else if (action.select) {
-        // TODO skip empty selects
-        !_.isEmpty(action.select) && ab.addSelect(action, $appendTo);
-      }
-      // LABEL ONLY
-      else if (!_.isUndefined(action.label)) {
-        action.$control = $('<label/>')
-          .attr('data-action', action.name)
-          .addClass('mdl-actionbar__label ' + (action.cls || ''))
-          .text(action.label)
-          .appendTo($appendTo);
-        if (action.for) action.$control.attr('for', action.for);
-      }
-
-      if (!_.isUndefined(action.badge)) {
-        $appendTo.append(
-          action.$badge = $('<div/>').addClass('mdl-actionbar__item-badge mdl--left').text(action.badge)
-          //action.$badge = $('<div/>').addClass('mdl-actionbar__item-badge mdl-badge mdl--left').attr('data-badge', action.badge)
-        );
-      }
-
-      if (!_.isUndefined(action.trap)) {
-        console.log('define mouse trap directly?', action.trap);
-      }
-    });
-  };
-
-  /**
-   * Add a Icon Button Control in the ActionBar.
-   * @param action
-   * @param $appendTo
-   */
-  ActionBar.prototype.addIcon = function(action, $appendTo) {
-    var
-      ab = this,
-      $btn,
-      $menuItem;
-
-    $btn = action.$control = window.material.button({
-      appendTo: $appendTo,
-      label: action.iconText || TEMPLATES.icon({ icon: action.icon }),
-      cls: action.iconText ? 'mdl-actionbar__item--text' : '',
-      icon: true,
-      title: action.title || action.tooltip,
-      data: { uid: ab.name },
-      titlePosition: _.getObject('tooltips.position', ab.params) || 'bottom',
-      disabled: true// create in disabled mode
-    })
-      .attr('data-action', action.name)
-      .data('name', action.name)
-      .addClass('mdl-actionbar__item mdl--left' + (action.hidden ? ' hidden' : ''));
-
-    action.cls && $btn.addClass(action.cls);
-
-    // support Material Design Icons Package
-    FN.convert_icon($btn, action.icon);
-
-    // more menu active?
-    // only "clone" enabled actions from a more group
-    // TODO hide all disabled actions??
-    //if (ab.$moreMenu && !action.disabled && $appendTo.is('.mdl-actionbar__group--more')) {
-    if (ab.$moreMenu && $appendTo.is('.mdl-actionbar__group--more')) {
-      ab.$moreMenu.append($menuItem = action.$menu = $(TEMPLATES.menuItem({
-        id: 'mi-' + action.name,
-        item: action.title || action.iconText,
-        icon: action.icon
-      })));
-
-      action.cls && $menuItem.addClass(action.cls);
-
-      // support Material Design Icons Package
-      FN.convert_icon($menuItem, action.icon, function($el) { $el.css('top', '3px'); });
-
-      $menuItem
-        .attr('disabled', 'disabled')
-        .addClass('mdl-actionbar__more-button disabled')
-        .attr('data-action', action.name)
-        .children('div:last').width(64);
-
-      if (action.badge) {
-        $menuItem.children('div:last')
-          .find('.material-icons')
-            .addClass('mdl-badge mdl-badge--overlap')
-            .attr('data-badge', action.badge);
-      }
-    }
-
-    !action.disabled && ab.enable(action.name);
-  };
-
-  /**
-   * Add a Button Control in the ActionBar.
-   * @param action
-   * @param $appendTo
-   */
-  ActionBar.prototype.addButton = function(action, $appendTo) {
-    var
-      ab = this,
-      $btn,
-      $menuItem,
-      $badge;
-
-    // remove "title" as tooltip, if data is the same as label
-    if (action.label.toLowerCase() === (action.title||'').toLowerCase()) {
-      action.title = '';
-    }
-
-    $btn = action.$control = window.material.button({
-      appendTo: $appendTo,
-      label: action.label,
-      iconLeft: action.icon,
-      title: action.title,
-      data: { uid: ab.name },
-      upload: action.upload,
-      on: {
-        upload: function(files) {
-          if (_.isEmpty(files)) { return; }
-
-          // store selected file(s)
-          action.files = files;
-          // preview selected file name in badge
-          $badge.text(_.first(files).name);
-          // hide the upload element
-          $btn.find('.mdl-button__file-upload').hide();
-        }
-      }
-    })
-      .attr('data-action', action.name)
-      .data('name', action.name)
-      .addClass('mdl-actionbar__item mdl-actionbar__item-label-button mdl--left' + (action.hidden ? ' hidden' : ''));
-
-    action.cls && $btn.addClass(action.cls);
-    action.disabled && ab.disable(action.name);
-
-    if (action.upload) {
-      $appendTo.append(
-        $badge = $('<div/>').addClass('mdl-actionbar__item-badge mdl--left')
-          .text('?')
-          //.append(window.material.icon('help_outline'))
-      );
-      // upload property could be a function
-      // ex. to modify the container and wrap a form element
-      if (_.isFunction(action.upload)) {
-        action.upload.call(ab, action);
-      }
-    }
-
-    if (ab.$moreMenu && $appendTo.is('.mdl-actionbar__group--more')) {
-      ab.$moreMenu.append($menuItem = action.$menu = $(TEMPLATES.menuItem({
-        id: 'mi-' + action.name,
-        item: action.label || action.title,
-        icon: action.icon
-      })));
-
-      $menuItem
-        .attr('disabled', 'disabled')
-        .addClass('mdl-actionbar__more-button disabled')
-        .attr('data-action', action.name)
-        .children('div:first').width('85%');
-
-      if (action.badge) {
-        $menuItem.children('div:last')
-          .find('.material-icons')
-          .addClass('mdl-badge mdl-badge--overlap')
-          .attr('data-badge', action.badge);
-      }
-    }
-
-    !action.disabled && ab.enable(action.name);
-  };
-
-  /**
-   * Add a Select ~ Button Control in the ActionBar.
-   * @param action { button: "material icon", name: "", select: [{label,value,selected}] }
-   * @param $appendTo
-   */
-  ActionBar.prototype.addSelect = function(action, $appendTo) {
-    var
-      ab = this,
-      $selItem = action.$control = $('<div class="mdl-actionbar__item mdl-actionbar__item-select-button mdl--left">' +
-        '<select size="1" disabled></select>' +
-        (action.button ? TEMPLATES.button({ label: TEMPLATES.icon({ icon: action.button }) }) : '') +
-        '</div>'
-      ).attr('data-action', action.name),
-      $sel = $selItem.find('select').data('name', action.name),
-      $button = $selItem.find('button').addClass('mdl-actionbar__item-button'),
-      button = $button.get(0),
-      $noption,
-      $menuItem,
-      options = [];
-
-    if (action.button) {
-      $sel.css({ borderTopRightRadius: 0, borderBottomRightRadius: 0 });
-      window.componentHandler.upgradeElement(button);
-      button.MaterialButton.disable();
-    }
-
-    // copy options from an existing element
-    if (!Array.isArray(action.select) && (_.isElement(action.select) || _.isElement(action.select[0]))) {
-      $(action.select).children('option').each(function () {
-        options.push({
-          value: this.value,
-          label: this.innerText,
-          selected: $(this).prop('selected')
-        });
-      });
-      action.select = options;
-      action.hidden = _.isEmpty(options);
-    }
-
-    _.each(action.select, function(opt) {
-      if (opt && opt.label) {
-        $noption = $(new Option(opt.label, opt.value || ''));
-        $noption.prop('selected', opt.selected);
-        $noption.data(opt);
-        $sel.append($noption);
-        // an option with href is a real action
-        if (opt.href) {
-          ab.actions[opt.name] = opt;
-        }
-      }
-    });
-
-    action.cls && $selItem.addClass(action.cls);
-    action.hidden && $selItem.hide();
-
-    $selItem.appendTo($appendTo);
-
-    // convert select to material design
-    action.select = _.first(window.material.selectFrom($sel, {
-      width: action.width,
-      //width: $selItem.outerWidth(true),
-      padded: false,
-      label: action.label,
-      disabled: action.disabled
-    }));
-    action.button && action.select.$tf.addClass('mdl-textfield--no-radius-right');
-
-    // add method to change options for actionbar and more menu
-    action.options = function(newOptions, clear) {
-      var $sel;
-
-      // update actionbar select control
-      action.select.options(newOptions, clear);
-
-      // update more menu select
-      $sel = action.$menu.find('select').empty();
-      _.each(newOptions, function(no) {
-        $sel.append(
-          $('<option/>').attr({ value: no.value }).text(no.label).prop('selected', no.selected)
-        );
-      });
-    };
-
-    // create select ~ button control in the more menu
-    if (ab.$moreMenu && $appendTo.is('.mdl-actionbar__group--more')) {
-      ab.$moreMenu.append($menuItem = action.$menu = $(TEMPLATES.menuItem({
-        id: 'mi-' + action.name,
-        item: action.title,
-        icon: action.icon
-      })));
-
-      $menuItem
-        .attr('disabled', 'disabled')
-        .addClass('mdl-actionbar__more-select disabled')
-        .attr('data-action', action.name);
-
-      action.hidden && $menuItem.addClass('hidden');
-
-      $menuItem.children('div:first').width('82%').empty().append(
-        $sel.clone(true).show()// true = copy option.data
-      );
-      $menuItem.children('div:last').empty().append(
-        $button.clone(true, true)
-      );
-      // convert the cloned select
-      //window.material.selectFrom($menuItem.find('select'), {
-      //  padded: false
-      //});
-    }
-
-    !action.disabled && ab.enable(action.name);
-  };
-
-  ActionBar.prototype.addTextfield = function(action, $appendTo) {
-    action.$control = window.material.textfield({
-        appendTo: $appendTo,
-        placeholder: action.placeholder,
-        value: action.value,
-        label: action.label,
-        width: action.width || 120
-      })
-      .css({backgroundColor: 'transparent', marginTop: -10, marginLeft: 6})
-      .attr('data-action', action.name)
-      .data('name', action.name)
-      .addClass('mdl-actionbar__item mdl-actionbar__textfield mdl--left' + (action.hidden ? ' hidden' : ''))
-      .prop('disabled', action.disabled);
-  };
-
-  ActionBar.prototype.addMore = function() {
-    var
-      moreId = this.name + '-more',
-      $appendTo = $('body'),
-      menuPositionClass;
-      //$appendTo = this.params.appendTo.offsetParent();
-
-    // create icon button to show hidden action groups
-    this.$more = window.material.button({
-      label: TEMPLATES.icon({ icon: 'more_vert' }),
-      icon: true
-    })
-      .attr('id', moreId)
-      .addClass('mdl-actionbar__item mdl-actionbar__item--more')
-      .prop('disabled', true);
-
-    // put button "more" into own group
-    this.$center.append(
-      $('<div/>').addClass('mdl-actionbar__group mdl-actionbar__group-more mdl--right').append(
-        this.$more
-      )
-    );
-
-    menuPositionClass = _.go('params.menu.position', this) === 'br' ? 'top-right' : 'bottom-right';
-    this.$moreMenu = $(TEMPLATES.menu({ id: moreId, cls: 'mdl-menu--' + menuPositionClass }))
-      .attr('data-uid', this.name)
-      .appendTo($appendTo);
-
-    window.componentHandler.registerUpgradedCallback('MaterialMenu', function() {
-      //console.log('registerUpgradedCallback menu');
-    });
-    this.$moreMenu.one('mdl-componentupgraded', function() {
-      //console.log('mdl-componentupgraded');
-    });
-    window.componentHandler.upgradeElement(this.$moreMenu.get(0));
-  };
-
-  ActionBar.prototype.recalc = function() {
-    var
-      ab = this,
-      eastWidth = 0,
-      centerWidth,
-      centerPaneWidth;
-
-    if (this.params.direction === 'vertical') { return; }// TODO
-
-    this.$east.children(':visible').each(function(i, el) {
-      // TODO without +1 controls wrapped
-      // TODO with only +1 IE wraps button
-      eastWidth += $(el).outerWidth(true) + 2;
-    });
-    this.layout.sizePane('east', eastWidth, false, true);
-
-    centerPaneWidth = ab.layout.center.state.innerWidth;
-
-    // TODO only show if fits
-    getHiddenGroups().show();
-    while ((centerWidth = getCenterWidth()) > centerPaneWidth && getVisibleGroups().length > 0) {
-      hideLastGroup();
-    }
-    this.centerSpace = centerPaneWidth - centerWidth;
-    this.debug && console.log('centerSpace: %d = %d - %d ', this.centerSpace, centerPaneWidth, centerWidth);
-
-    checkMoreMenu();
-
-    function checkMoreMenu() {
-      if (!ab.$moreMenu || !ab.$moreMenu.length) { return; }
-
-      var
-        $hg = getHiddenGroups(),
-        $lastAction = null,
-        $lastDivider,
-        more = hasMore();
-
-      ab.debug && console.log('has more menu?', more);
-
-      // manage "open more menu" action button
-      ab.$more.prop('disabled', !more);
-      ab.params.hideMore && ab.$more[more ? 'show' : 'hide']();
-
-      // hide all menu items and remove the divider classifier
-      ab.$moreMenu.find('.mdl-menu__item').removeClass('mdl-menu__item--full-bleed-divider').hide();
-
-      // for every hidden group
-      $hg.each(function() {
-        // iterate the action bar items
-        $(this).find('.mdl-actionbar__item').each(function() {
-          // ignore items with class "hidden"
-          if (!$(this).is('.hidden')) {
-            $lastAction = $('#mi-' + $(this).data('action'), ab.$moreMenu).show();
-          }
-        });
-        // set divider to last visible action of a group
-        $lastAction && $lastAction.addClass('mdl-menu__item--full-bleed-divider');
-      });
-
-      // no divider after the last visible group
-      $lastDivider = $('.mdl-menu__item--full-bleed-divider:visible', ab.$moreMenu).last();
-      $lastDivider.removeClass('mdl-menu__item--full-bleed-divider');
-
-      // refresh menu
-      if (ab.$moreMenu.parents('.mdl-menu__container.is-visible').length) {
-        ab.$moreMenu.get(0).MaterialMenu[ab.$moreMenu.find('li:visible').length ? 'show' : 'hide']();
-      }
-    }
-    function hideLastGroup() {
-      var
-        $lg = getVisibleGroups().last().hide(),
-        action;
-
-      if (!ab.$moreMenu) { return; }
-
-      // handle entries in more menu
-      $lg.find('[data-action]').each(function() {
-        action = this.getAttribute('data-action');
-        $('#'+action, ab.$moreMenu).prop('disabled', true);
-      });
-    }
-    function getVisibleGroups() {
-      return ab.$center.children('.mdl-actionbar__group--more:visible');
-    }
-    function getHiddenGroups() {
-      return ab.$center.children('.mdl-actionbar__group--more:hidden');
-    }
-    function hasMore() {
-      return ab.$center.children('.mdl-actionbar__group--more:hidden').length > 0;
-    }
-    function getCenterWidth() {
-      var cw = 0, w = 0;
-      if (ab.debug) {
-        console.groupCollapsed('getCenterWidth');
-        console.log('number of groups: %d', ab.$center.children().length);
-        console.log('visible groups: %d', ab.$center.children(':visible').length);
-      }
-      ab.$center.children(':visible').not('.mdl-actionbar__group-more').each(function(i, el) {
-        w = Math.ceil($(el).outerWidth(true));
-        cw += w;
-        ab.debug && console.log('group width: %d = %d', w, cw);
-      });
-      ab.debug && console.groupEnd('getCenterWidth');
-      return cw;
-    }
-  };
-
-  ActionBar.prototype.progress = function() {
-    var
-      args = _.toArray(arguments),
-      action = args.shift(),
-      updateCount = 1;
-
-    if (!this.$progress) {
-      this.$progress = $('<div class="mdl-actionbar__progress"></div>');
-      this.$progress.width(0);
-      this.$element.append(this.$progress);
-    }
-    if (action === 'count') {
-      this.progressCount = args.shift();
-      this.progressIndex = 0;
-      this.$progress.width(0);
-    }
-    else if (action === 'update') {
-      updateCount = args.shift();// current index as argument
-      this.progressIndex = updateCount || (this.progressIndex + 1);// otherwise increase by one
-      this.$progress.width((this.progressIndex*100/this.progressCount)+'%');
-      // hide progress on 100%
-      if (this.progressIndex >= this.progressCount) {
-        this.$progress.fadeOut();
-      }
-    }
-  };
-
-  // actionBar.enable('import')
-  // actionBar.disable(['import', 'export'])
-  // actionBar.disable({group:'id'})
-  ActionBar.prototype.enable = function(actions) {
-    const ab = this;
-    if (_.isObject(actions) && actions.group) {
-      const gid = actions.group;
-      actions = [];
-      _.each(ab.actions, function (a, ak) {
-        if (a.gid === gid) actions.push(ak);
-      });
-    }
-    _.each(checkActions(actions), function (a) {
-      ab._toggle(a);
-    });
-  };
-  ActionBar.prototype.disable = function(actions) {
-    const ab = this;
-    if (_.isObject(actions) && actions.group) {
-      const gid = actions.group;
-      actions = [];
-      _.each(ab.actions, function (a, ak) {
-        if (a.gid === gid) actions.push(ak);
-      });
-    }
-    _.each(checkActions(actions), function (a) {
-      ab._toggle(a, true);
-    });
-  };
-  // internal method to toggle control state
-  ActionBar.prototype._toggle = function(actionName, disabled) {
-    var
-      action = this.actions[actionName];
-
-    if (!action) { return; }// action doesn't exists
-
-    disabled = _.isBoolean(disabled) ? disabled : false;
-
-    if (action.$menu) {
-      // NOTE set <li> to disabled doesn't work with .prop()??
-      if (disabled) {
-        action.$menu.find(':input').prop('disabled', true);
-        action.$menu.attr('disabled', 'disabled').addClass('disabled');
-      }
-      else {
-        action.$menu.find(':input').prop('disabled', false);
-        action.$menu.removeAttr('disabled').removeClass('disabled');
-      }
-    }
-
-    if (action.$control.hasClass('mdl-actionbar__item-select-button')) {
-      action.select.disable();
-      action.$control.find('.mdl-select')[disabled ? 'addClass' : 'removeClass']('mdl-select--disabled');
-      action.$control.find('.mdl-button').prop('disabled', disabled);
-    }
-    else {
-      action.$control[disabled ? 'addClass' : 'removeClass']('disabled')
-        .prop('disabled', disabled);
-
-      // prevent not disappearing tooltips after disabling a button
-      if (disabled) {
-        $('.mdl-tooltip[for="' + action.$control.attr('id') + '"]').removeClass('is-active');
-      }
-    }
-  };
-
-  ActionBar.prototype.show = function(actions) {
-    var ab = this;
-    _.each(checkActions(actions), function(a) {
-      ab.actions[a].$control.removeClass('hidden');
-    });
-  };
-  ActionBar.prototype.hide = function(actions) {
-    var ab = this;
-    _.each(checkActions(actions), function(a) {
-      ab.actions[a].$control.addClass('hidden');
-    });
-  };
-
-  // add/remove badge for actionbar controls
-  ActionBar.prototype.badge = function(actions) {
-    if (_.isEmpty(this.actions)) { return; }
-
-    var ab = this, action;
-
-    _.each(checkActions(actions), function(a) {
-      action = ab.actions[a.name];
-      if (action) {
-        // label there -> create badge
-        if (a.label) {
-          // if badge container doesn't exist -> create wrapper and badge
-          if (!action.$badge) {
-            action.$control.wrap('<div class="mdl-actionbar__item-badge-wrapper"/>');
-            action.$control.parent().append(
-              action.$badge = $('<div/>').addClass('mdl-actionbar__item-badge mdl-badge mdl--left')
-            );
-          }
-          // set badge text
-          action.$badge.text(a.label);
-        }
-        // label not there -> remove badge
-        else {
-          if (action.$badge) {
-            action.$badge.remove();
-            if (action.$control.parent().is('.mdl-actionbar__item-badge-wrapper')) {
-              action.$control.unwrap();
-            }
-            action.$badge = null;
-          }
-        }
-      }
-    });
-  };
-
-  // set new tooltips to actions
-  // actionBar.tooltip([{ name: 'import', title: 'new tooltip' }]);
-  ActionBar.prototype.tooltip = function(actions) {
-    if (_.isEmpty(actions) || _.isEmpty(this.actions)) { return; }
-
-    var ab = this, action, aid;
-
-    _.each(checkActions(actions), function(a) {
-      action = ab.actions[a.name];
-      aid = action.$control.attr('id');
-      $('.mdl-tooltip[for="' + aid + '"]').text(a.title);
-    });
-  };
-
-  function ActionBarBuilder() {
-    this.groups = [];
-  }
-
-  ActionBarBuilder.prototype.group = function(id, actions) {
-    this.groups.push({id, actions});
-    return this;
-  };
-  ActionBarBuilder.prototype.icon = function(icon_or_params) {
-    const action = _.isString(icon_or_params) ? {icon: icon_or_params} : icon_or_params;
-    action.name = action.name || action.icon;
-    return action;
-  };
-  ActionBarBuilder.prototype.checkbox = function(label_or_params) {
-    const action = _.isString(label_or_params) ? {label: label_or_params} : label_or_params;
-    action.name = action.name || action.label.toLowerCase().replace(/[^A-Z]/ig, '') || _.uniqueId('aba-');
-    action.checkbox = true;
-    return action;
-  };
-  ActionBarBuilder.prototype.select = function(options_or_params) {
-    const action = Array.isArray(options_or_params) ? {select: options_or_params} : options_or_params;
-    action.name = action.name || _.uniqueId('aba-');
-    return action;
-  };
-
-  ActionBarBuilder.prototype.build = function() {
-    return this.groups;
-  };
-
-  const ACTIONS = [
-    { name: 'create', icon: 'create' },
-    { name: 'help', icon: 'help' },
-    { name: 'settings', icon: 'settings' },
-    { name: 'alarm', icon: 'alarm' },
-    { name: 'android', icon: 'android' },
-    { name: 'backup', icon: 'backup' },
-    { name: 'bookmark', icon: 'bookmark' },
-    { name: 'build', icon: 'build' },
-    { name: 'copyright', icon: 'copyright' },
-    { name: 'daterange', icon: 'date_range' },
-    { name: 'eject', icon: 'eject' },
-    { name: 'explore', icon: 'explore' },
-    { name: 'code', icon: 'code' },
-    { name: 'event', icon: 'event' },
-    { name: 'favorite', icon: 'favorite' },
-    { name: 'extension', icon: 'extension' },
-    { name: 'openinnew', icon: 'open_in_new' }
-  ];
-
-  ActionBarBuilder.prototype.randomize = function(_size) {
-    const randomActions = [];
-    _size = _size || 5;
-    _.times(_size, function () {
-      randomActions.push(_.sample(ACTIONS));
-    });
-    randomActions.push(this.randomButton())
-    randomActions.push(this.randomSelect())
-    return _.uniq(randomActions);
-  };
-  ActionBarBuilder.prototype.randomButton = function() {
-    const sample = this.randomize(1);
-    sample[0].label = sample[0].name;
-    return sample;
-  };
-  ActionBarBuilder.prototype.randomSelect = function() {
-    const sample = this.randomize(1);
-    sample[0].button = sample[0].icon;
-    sample[0].icon = null;
-    sample[0].label = null;
-    sample[0].select = [
-      { label: 'Test 1', value: 't1', selected: true },
-      { label: 'Test 2', value: 't2' },
-      { label: 'Test 3', value: 't3' }
-    ];
-    return sample;
-  };
-
-  /**
-   * Convert actions param to Array, if necessary.
-   * @param actions {String|Array}
-   * @returns {Array}
-   */
-  function checkActions(actions) {
-    if (!Array.isArray(actions)) {
-      actions = [actions];
-    }
-    if (!Array.isArray(actions)) { return []; }
-
-    return actions;
-  }
-
-  // ====== Material Table ====================================================
-
-  /**
-   * Class Material Table
-   * @param params
-   * @constructor MTable
-   */
-  function MTable(params) {
-    this.params = $.extend({}, DEFAULTS.table, params);
-    this.$table = $('<table/>');
-    this.table = this.$table.get(0);
-
-    this._init();
-  }
-
-  MTable.prototype._init = function() {
-    var
-      mtable = this,
-      $thr = $('<tr/>');
-
-    this.$table
-      .width('100%')
-      .addClass('mdl-data-table mdl-js-data-table');
-
-    this.params.shadow && this.$table.addClass('mdl-shadow--2dp');
-    this.params.selectable &&  this.$table.addClass('mdl-data-table--selectable');
-    this.params.wrap && this.$table.addClass('mdl-data-table--wrap');
-    this.params.dense && this.$table.addClass('mdl-data-table--dense');
-
-    this.$thead = $('<thead/>');
-
-    $thr.appendTo(this.$thead);
-    this.$thead.appendTo(this.$table);
-    // TODO check param is set
-    this.$table.appendTo(this.params.appendTo);
-
-    // create table header
-    _.each(this.params.th, function(h) {
-      var
-        txt = _.isString(h) ? h : h.label,
-        num = _.isString(h) ? false : h.numeric,
-        cls = num ? '' : 'mdl-data-table__cell--non-numeric',
-        $th,
-        cellWidth = _.isString(h) ? 0 : h.width;
-
-      if (_.isObject(h) && h.center) {
-        cls = 'mdl-data-table__cell--icon-center';
-      }
-      $th = $('<th/>').addClass(cls).appendTo($thr);
-      if (!_.isString(h) && h.icon) {
-        window.material.button({
-          label: window.material.icon(h.icon),
-          icon: true,
-          title: h.title,
-          appendTo: $th,
-          disabled: h.disabled
-        });
-      }
-      else if (txt) {
-        $th.text(txt);
-      }
-      if (cellWidth) {
-        $th.css('minWidth', cellWidth);
-      }
-    });
-
-    this.$tbody = $('<tbody/>').appendTo(this.$table);
-
-    _.each(this.params.td, function(row) {
-      mtable.addRow(row);
-    });
-
-    window.componentHandler.upgradeElement(this.table);
-
-    this._bind();
-  };
-
-  MTable.prototype._bind = function() {
-    var mtable = this;
-    this.$table.on('click.mdl-table', '.mdl-data-table__cell-action > i.material-icons', function () {
-      _.isFunction(mtable.params.on.action) && mtable.params.on.action.call(this, $(this).parents('tr:first'));
-    });
-    if (this.params.selectable) {
-      this.$thead.on('change', '.mdl-data-table__select', function () {
-        const isChecked = $(this).is('.is-checked');
-        mtable.rows().find('.mdl-data-table__select').each(function () {
-          this.MaterialCheckbox[isChecked ? 'check' : 'uncheck']();
-        })
-      });
-    }
-  };
-
-  MTable.prototype.addRow = function(data) {
-    if (!_.isArray(data)) return;
-
-    var
-      $td,
-      $tr = $('<tr/>'),
-      cell,
-      num,
-      icon,
-      checkbox,
-      cls,
-      cellWidth;
-
-    if (this.params.selectable) {
-      data.unshift({checkbox:true});
-    }
-
-    _.each(data, function(td) {
-      cell = _.isString(td) ? td : td.content || '';
-      num = _.isString(td) ? false : td.numeric;
-      icon = _.isString(td) ? false : td.icon;
-      checkbox = _.isString(td) ? false : td.checkbox;
-      cls = num ? '' : 'mdl-data-table__cell--non-numeric';
-      cellWidth = 0;
-
-      $td = $('<td/>').appendTo($tr);
-
-      if (!cell && checkbox) {
-        window.material.checkbox({
-          appendTo: $td,
-          cls: 'mdl-data-table__select'
-        });
-      }
-      else if (!cell && icon) {
-        window.material.button({
-          appendTo: $td,
-          label: window.material.icon(icon),
-          icon: true
-        });
-        cellWidth = 32;
-        cls = 'mdl-data-table__cell--icon-center';
-        if (icon === 'warning') {
-          cls += ' mdl-color-text--yellow-700';
-        }
-      }
-      else if (td && td.spinner) {
-        $td.append(TEMPLATES.spinner());
-        cls = 'mdl-data-table__cell--icon-center';
-      }
-      else {
-        $td.html(cell);
-      }
-
-      if (_.isObject(td) && td.cls) {
-        cls += ' ' + td.cls;
-      }
-      $td.addClass(cls);
-
-      cellWidth && $td.width(cellWidth);
-    });
-
-    $tr.appendTo(this.$tbody);
-
-    $tr.find('.mdl-js-spinner').each(function() {
-      window.componentHandler.upgradeElement(this);
-      $(this).addClass('is-active');
-    });
-
-    return $tr;
-  };
-
-  MTable.prototype.rows = function() {
-    return this.$tbody.children('tr');
-  };
-
-  MTable.prototype.clear = function() {
-    this.rows().remove();
-  };
-
-  // ====== Material Stepper ==================================================
-
-  /**
-   * Class Material Stepper
-   * @param params
-   * @param callback
-   * @constructor MStepper
-   */
-  function MStepper(params, callback) {
-    this.params = $.extend({}, DEFAULTS.stepper, params);
-    this.params.name = this.params.name || _.uniqueId('mdl-stepper-');// unique name required
-    this.callback = callback || $.noop;
-    this._layout(this._init.bind(this));
-  }
-
-  // Stepper Layout
-  //   North Region -> Steps
-  //  Center Region -> Step Content
-  MStepper.prototype._layout = function(callback) {
-    _.layout.create(this.params.appendTo, {
-      name: this.params.name,
-      sreg: 'c-,n-',
-      theme: 'material',
-      north: { size: 80, initHidden: true },
-      center: { scrollable: false }
-    }, callback);
-  };
-
-  MStepper.prototype._init = function(layout) {
-    var
-      mstepper = this,
-      params = this.params,
-      $center = layout.panes.center.empty(),
-      $stepper = $('<ul/>').addClass('mdl-stepper mdl-stepper--horizontal').appendTo($center),
-      stepper = $stepper.get(0);
-
-    this.layout = layout;
-    this.$stepper = $stepper;
-
-    params.id && $stepper.attr('id', params.id);
-    $stepper.height('100%');
-
-    params.steps.forEach(this.addStep.bind(this));
-    this.$steps = $stepper.children('.mdl-step');
-
-    window.componentHandler.upgradeElement(stepper);
-
-    this.stepper = stepper;
-    this.MaterialStepper = stepper.MaterialStepper;
-
-    $stepper.on('click', '.mdl-step__label', function() {
-      var idx = mstepper.$steps.index($(this).parents('.mdl-step').first());
-      stepper.MaterialStepper.goto(idx+1);
-      mstepper.updateButtons();
-      _.isFunction(params.on.next) && params.on.next(mstepper.getActiveStep());
-    });
-
-    window.Mousetrap.bind('f2', function() {
-      mstepper.back();
-    });
-    window.Mousetrap.bind('f4', function() {
-      mstepper.next();
-    });
-
-    if (params.next) {
-      $(params.next).click(function() {
-        mstepper.next();
-      });
-    }
-    if (params.back) {
-      $(params.back).click(function() {
-        mstepper.back();
-      });
-    }
-
-    this.callback();
-  };
-
-  MStepper.prototype.next = function() {
-    if (_.isFunction(this.params.on.validate)) {
-      if (this.params.on.validate(this.getActiveStep())) {
-        this.MaterialStepper.next();
-        _.isFunction(this.params.on.next) && this.params.on.next(this.getActiveStep());
-      }
-      else {
-        this.MaterialStepper.error('ERROR');
-      }
-    }
-    else {
-      this.MaterialStepper.next();
-      _.isFunction(this.params.on.next) && this.params.on.next(this.getActiveStep());
-    }
-
-    this.updateButtons();
-  };
-
-  MStepper.prototype.back = function() {
-    this.MaterialStepper.back();
-    //_.isFunction(this.params.on.next) && this.params.on.next(this.getActiveStep());
-    this.updateButtons();
-  };
-
-  MStepper.prototype.spinner = function(off) {
-    var
-      active = this.getActiveStep(),
-      $indicator = active.$step.find('.mdl-step__label-indicator'),
-      $spinner;
-
-    if (!off) {
-      $indicator
-        .css('background-color', 'transparent')
-        .find('.mdl-step__label-indicator-content').hide();
-      $spinner = $('<span class="mdl-spinner mdl-js-spinner"></span>')
-        .appendTo($indicator);
-      window.componentHandler.upgradeElement($spinner.get(0));
-      $spinner.addClass('is-active');
-    }
-    else {
-      // wait a second to let the user recognize the spinner
-      _.delay(function() {
-        $indicator.find('.mdl-spinner').remove();
-        $indicator
-          .removeAttr('style')
-          .find('.mdl-step__label-indicator-content').show();
-      }, 1000);
-    }
-  };
-
-  /**
-   * Set all steps to state "completed".
-   */
-  MStepper.prototype.alldone = function() {
-    var
-      mstepper = this.MaterialStepper,
-      STATE_COMPLETED = mstepper.StepState_.COMPLETED;
-
-    _.each(mstepper.Steps_.collection, function(state) {
-      mstepper.updateStepState_(state, STATE_COMPLETED);
-    });
-  };
-
-  /**
-   * Add new step to stepper.
-   * @param params
-   * @param idx
-   */
-  MStepper.prototype.addStep = function(params, idx) {
-    var
-      $step,
-      $actions,
-      label = _.isString(params) ? params : params.label,
-      optional = _.isString(params) ? false : params.optional;
-
-    $step = $(TEMPLATES.stepper({
-      icon: idx+1,
-      label: label,
-      message: optional ? 'Optional' : ''
-    }))
-      .appendTo(this.$stepper);
-
-    _.isFunction(this.params.on.step) && this.params.on.step({
-      $step: $step,
-      index: idx
-    });
-
-    // check for existing action definitions
-    // if no actions found, we hide the action panel
-    // and recalc the height of the step content
-    $actions = $step.find('.mdl-step__actions');
-    if (!$actions.children().length) {
-      $actions.hide();
-      $step.find('.mdl-step__content').height('calc(100% - 132px)');
-    }
-  };
-
-  MStepper.prototype.getActiveStep = function() {
-    var
-      $active = this.$steps.filter('.is-active'),
-      index = this.$steps.index($active);
-
-    return {
-      $step: $active,
-      index: index
-    };
-  };
-
-  MStepper.prototype.updateButtons = function() {
-    var
-      next = this.params.next,
-      back = this.params.back,
-      steps = this.MaterialStepper.Steps_,
-      active = steps.active,
-      total = steps.total;
-
-    if (_.isFunction(next)) {
-      next((active === total));
-    }
-    else {
-      next.prop('disabled', (active === total));
-    }
-
-    if (_.isFunction(back)) {
-      back((active === 1));
-    }
-    else {
-      back.prop('disabled', (active === 1));
-    }
-  };
-
-  // ====== Material Select ==================================================
-
-  /**
-   * Class Material Select
-   * @param params
-   * @constructor MSelect
-   */
-  function MSelect(params) {
-    this.params = $.extend({}, DEFAULTS.select, params);
-    this.init();
-  }
-
-  MSelect.prototype.init = function() {
-    var
-      msel = this,
-      params = this.params,
-      $wrapper = $('<div/>').addClass('mdl-select'),
-      $sync = $('<select/>').addClass('hidden').appendTo($wrapper),
-      selected = _.find(params.options, function(o) { return o.selected; }),
-      $tf = window.material.textfield({
-        appendTo: $wrapper,
-        label: params.label,
-        value: !_.isUndefined(selected) ? selected.label : '',
-        disabled: false,
-        readonly: true,
-        clear: false,
-        helper: params.helper
-      }),
-      $arrow = $(window.material.icon('keyboard_arrow_down')),
-      $dropdown = $('<div/>').addClass('mdl-select__dropdown'),
-      $options = $('<ul/>').addClass('mdl-select__options').appendTo($dropdown);
-
-    if (params.parent) $dropdown.appendTo(params.parent);
-    else $dropdown.appendTo(!params.inline ? 'body' : $wrapper)
-
-    $wrapper.data('instance', this);// bind instance to select wrapper element
-
-    params.appendTo && $wrapper.appendTo(params.appendTo);
-    params.replace && $(params.replace).replaceWith($wrapper);
-
-    this.$element = $wrapper;
-    this.$sync = $sync;
-    this.$tf = $tf;
-    this.tf = $tf.get(0).MaterialTextfield;
-    this.$dropdown = $dropdown;
-    this.$list = $options;
-
-    if (params.inline && !this.params.parent) {
-      this.params.parent = $wrapper;
-    }
-
-    // init value as attribute for default getter
-    if (!_.isEmpty(selected)) {
-      this.tf.input_.setAttribute('data-val', selected.value);
-    }
-    params.name && this.$sync.attr('name', params.name);
-
-    // use width from trigger element, if measurable
-    if (!params.width && params.trigger) {
-      this.$trigger = $(params.trigger);
-      if (this.$trigger.is(':visible')) {
-        params.width = this.$trigger.width();
-      }
-    }
-    params.width && $tf.width(params.width) && $wrapper.width(params.width);
-
-    params.disabled && $wrapper.addClass('mdl-select--disabled');
-    !params.padded && $wrapper.addClass('mdl-select--notpadded');// true by default (formular style)
-    $wrapper.append($arrow.addClass('mdl-select__arrow'));
-    // TODO set dirty necessary?
-    //params.label && $tf.addClass('is-dirty');
-
-    if (_.isFunction(params.options)) {
-      this._get_options = params.options;
-      params.options = this._get_options();
-      this.options(params.options);
-      this.sync(selected);
-    }
-    else {
-      this.options(params.options);
-      this.sync(selected);
-      // this.setPos();// pre-position of the dropdown
-    }
-
-    // bind events
-    this.bindClickInput();
-    this.bindClickOption();
-
-    // debounce = wait 750ms before trigger first event
-    $(window).on('resize', _.debounce(function () {
-      msel.setPos();
-    }, 750));
-  };
-
-  MSelect.prototype.set = function() {
-    var
-      mselect = this,
-      args = _.toArray(arguments),
-      option = args.shift();
-
-    // first argument is a string value
-    if (_.isString(option)) {
-      option = mselect.get('option', option);
-    }
-    if (_.isEmpty(option)) { return; }
-
-    // switch classification
-    mselect.$dropdown.find('ul > li')
-      .removeClass('is-selected')
-      .filter('[data-val="' + option.value + '"]').addClass('is-selected');
-
-    // set new option to text field
-    mselect.tf.input_.value = option.label;
-    mselect.tf.updateClasses_();
-    mselect.tf.input_.setAttribute('data-val', option.value);
-
-    // reflect option to original select element
-    if (mselect.params.trigger) {
-      $(mselect.params.trigger)
-        .children('option[value="' + option.value + '"]').prop('selected', true)
-        .end()
-        .trigger('change');
-    }
-
-    mselect.sync(option);
-  };
-  MSelect.prototype.sync = function(option) {
-    if (!option) { return; }
-
-    const $option = $('<option/>')
-      .attr('value', (option.value || ''))
-      .text(option.label || '')
-      .prop('selected', true);
-    this.$sync.empty().append($option);
-
-    if (this.params.trigger) {
-      $(this.params.trigger).find('option[value="' + option.value + '"]')
-        .prop('selected', true)
-        .attr('selected', 'selected')
-        .siblings().removeAttr('selected');
-    }
-
-    !_.isEmpty(this.params.on) && _.isFunction(this.params.on.change) && this.params.on.change.call(this, $option);
-  };
-
-  MSelect.prototype.get = function(type, value) {
-    var tmp;
-
-    // get an option definition object
-    if (type === 'option') {
-      tmp = _.find(this.$dropdown.find('.mdl-button'), function(o) {
-        return $(o).data('option').value === value;
-      });
-      return !tmp ? tmp : $(tmp).data('option');
-    }
-    else {
-      return this.tf.input_.getAttribute('data-val');
-    }
-  };
-
-  MSelect.prototype.options = function(options, clear) {
-    const $list = this.$list;
-
-    clear && $list.empty();
-
-    _.each(options, function (o) {
-      $('<li/>').append(
-        window.material.button({
-          label: o.menu || o.label,
-          disabled: o.disabled
-        }).data('option', o)
-      )
-        .attr('data-val', o.value)
-        .addClass(o.selected ? 'is-selected' : '')
-        .appendTo($list);
-    });
-
-    if ($list.children('li').length === 1) {
-      this.$element.addClass('mdl-select--singleoption');
-      this.$element.find('.mdl-select__arrow').hide();
-    }
-    else {
-      this.$element.removeClass('mdl-select--singleoption');
-      this.$element.find('.mdl-select__arrow').show();
-    }
-
-    this.resize();
-
-    // set selected option
-    // if not defined, set first
-    let selected = $list.find('.is-selected').data('val');
-    if (_.isUndefined(selected)) {
-      selected = $list.find('li:first').data('val');
-    }
-    this.set(selected);
-  };
-
-  MSelect.prototype.bindClickOption = function() {
-    var mselect = this;
-    mselect.$dropdown.on('click', '.mdl-button', function() {
-      var o = $(this).data('option');
-      mselect.set(o);
-      // wait for ripple effect
-      _.delay($.proxy(mselect, 'close'), 200);
-      return false;
-    });
-  };
-
-  MSelect.prototype.bindClickInput = function() {
-    const mselect = this;
-    mselect.$element.on('click', function() {
-      if (!$(this).hasClass('mdl-select--disabled') && !$(this).hasClass('mdl-select--singleoption')) {
-        if ((mselect.params.inline || mselect.params.bottomMenu) && mselect.$dropdown.hasClass('is-visible')) {
-          mselect.close();
-        }
-        else {
-          $(document).on('click.mselect-close', $.proxy(mselect, 'close'));
-          mselect.open();
-        }
-      }
-      return false;
-    });
-  };
-
-  MSelect.prototype.bindKeyboard = function() {
-    var
-      mselect = this;
-
-    // first not disabled ? or currently selected?
-    mselect.$dropdown.find('.is-hovered').removeClass('is-hovered');
-    mselect.$dropdown.find('button').not(':disabled').first().focus().parent().addClass('is-hovered');
-
-    mselect.$dropdown.on('keydown', 'button', function(event) {
-      if (event.key === 'ArrowDown') {
-        next();
-      }
-      else if (event.key === 'ArrowUp') {
-        prev();
-      }
-      else if (event.key === 'Enter') {
-        mselect.$dropdown.find('.is-hovered').find('button').click();
-      }
-      else if (event.key === 'Escape') {
-        mselect.close();
-      }
-    });
-    mselect.$dropdown.on('focus', 'button', function() {
-      $(this).parent().addClass('is-hovered');
-    });
-    mselect.$dropdown.on('blur', 'button', function() {
-      $(this).parent().removeClass('is-hovered');
-    });
-
-    function next() {
-      var
-        $hovered = mselect.$dropdown.find('.is-hovered'),
-        $next = $hovered.next(),
-        $btn = $next.find('button');
-
-      if (!$next.length) { return; }
-      if ($btn.is(':disabled')) { return; }
-
-      $hovered.removeClass('is-hovered');
-      $next.addClass('is-hovered').find('button').focus();
-    }
-    function prev() {
-      var
-        $hovered = mselect.$dropdown.find('.is-hovered'),
-        $prev = $hovered.prev(),
-        $btn = $prev.find('button');
-
-      if (!$prev.length) { return; }
-      if ($btn.is(':disabled')) { return; }
-
-      $hovered.removeClass('is-hovered');
-      $prev.addClass('is-hovered').find('button').focus();
-    }
-  };
-
-  MSelect.prototype.open = function() {
-    if (this.$dropdown.is('.is-visible')) { return; }
-
-    this.$element.addClass('is-open');
-    // this.resize();
-    this.$dropdown.css('opacity', 0).addClass('is-visible');
-    this.setPos();
-    this.bindKeyboard();
-  };
-
-  MSelect.prototype.close = function() {
-    if (!this.$dropdown.is('.is-visible')) { return; }
-
-    this.$element.removeClass('is-open');
-    this.$dropdown.removeClass('is-visible');
-    this.$dropdown.off('keydown');
-    $(document).off('click.mselect');// unbind eventlistener
-    this.params.on && _.isFunction(this.params.on.close) && this.params.on.close();
-  };
-
-  MSelect.prototype.enable = function() {
-    this.$element.removeClass('mdl-select--disabled');
-  };
-
-  MSelect.prototype.disable = function() {
-    // textfield is readonly
-    this.$element.addClass('mdl-select--disabled');
-  };
-
-  MSelect.prototype.setPos = function() {
-    var
-      isVisible = $(this.tf.element_).is(':visible'),
-      rect = this.tf.element_.getBoundingClientRect(),
-      // offset parent for the dropdown container
-      $parent = this.params.parent ? $(this.params.parent) : $(window),
-      // height of dropdown menu
-      mheight = this.$dropdown.height(),
-      // current bottom y position of the dropdown
-      bottom = $parent.height() - rect.top - mheight,
-      // take margin / padding into account
-      topgap = 0,
-      //topgap = parseInt($(this.tf.element_).css('paddingTop'), 10) || 0,
-      // height of input control
-      iheight = $(this.tf.input_).outerHeight(true),
-      // direction up or down
-      ddtop = bottom > 0 ? rect.top + topgap : rect.top - mheight + iheight,
-      // default: absolute position of textfield
-      ddleft = rect.left,
-      prect;
-
-    if (!this.$dropdown.is('.is-visible')) { return; }
-    if (!isVisible) {
-      this.close();
-      return;
-    }
-
-    // dropdown is inline, calc as relative position
-    if (this.params.inline) {
-      if (!this.params.parent) {
-        ddtop = rect.height - (this.params.padded ? 20 : 0) + 1;
-        ddleft = 0;
-      }
-      else {
-        prect = $parent[0].getBoundingClientRect();
-        ddtop = rect.top - prect.top + rect.height;
-        if (ddtop + mheight > prect.height) {
-          ddtop = ddtop - mheight - rect.height;
-        }
-        ddleft = rect.left - prect.left;
-      }
-    }
-    // not inline but position under control
-    else if (this.params.bottomMenu) {
-      ddtop += rect.height;
-    }
-
-    // TODO check floating label for top?
-    this.$dropdown.css({ top: ddtop, left: ddleft }).animate({opacity:1}, 300);
-  };
-
-  // recalc minimal width of select (ex. after options changed)
-  MSelect.prototype.resize = function() {
-    const $arrow = this.$element.find('.mdl-select__arrow');
-    let sw = this.params.width;
-    sw = sw || this.$list.parent().width() + ($arrow.is(':visible') ? $arrow.width() : 0);
-    this.$tf.width(sw);
-    // this.$dropdown.css('minWidth', sw);
-  };
-
-  MSelect.prototype.focus = function() {
-    this.tf.input_.focus();
-  };
-
-  // ====== Material Chips ==================================================
-
-  /**
-   * Class Material Chips
-   * @param params
-   * @constructor MChips
-   */
-  function MChips(params) {
-    this.params = $.extend({}, DEFAULTS.chips, params);
-    this.init();
-  }
-
-  MChips.prototype.init = function() {
-    var
-      mchips = this,
-      params = this.params;
-
-    this.$chips = $(TEMPLATES.chips(params)).appendTo(params.appendTo);
-    this.$container = this.$chips.find('.mdl-chips__container');
-    this.$sync = this.$chips.find('textarea');
-
-    this.val(params.value);
-
-    if (params.name) {
-      this.$sync.attr('name', params.name).val(params.value);
-      this.prependAdd();
-      this.$container.find('.mdl-chip__input').keydown(function(event) {
-        if (event.keyCode === 13) {
-          event.preventDefault();
-          var $mci = $(this), val = $mci.val();
-          $mci.val('');
-          mchips.add(val);
-          mchips.sync();
-        }
-      });
-    }
-  };
-
-  // add chips value(s)
-  // sync with input control
-  MChips.prototype.val = function(vals) {
-    if (_.isEmpty(vals)) { return; }// nothing to add
-
-    if (_.isString(vals)) {// convert strings to array
-      vals = vals.split(' ');
-    }
-
-    vals = _.reject(vals, function(v) { return !v; });
-    if (_.isEmpty(vals)) { return; }// nothing to add
-
-    var mchips = this;
-    if (this.params.chunk && vals.length > this.params.chunk) {
-      this.chunks = _.rest(vals, this.params.chunk);
-      vals = _.first(vals, this.params.chunk);
-    }
-    _.each(vals, function(v) {
-      mchips.add(v);
-    });
-
-    // TODO change color
-    // TODO handle action and load more chunks
-    if (!_.isEmpty(this.chunks)) {
-      mchips.add({ label: 'MORE', action: 'add' });
-    }
-
-    this.sync();
-  };
-
-  MChips.prototype.add = function(val) {
-    if (!val) { return; }
-
-    var
-      mchips = this,
-      pfx,
-      label,
-      action,
-      $chip;
-
-    if (_.isObject(val)) {
-      label = val.label || val.keyword || '';
-      pfx = label.substr(0, 1);
-      action = val.action || 'search';
-    }
-    else {
-      label = val;
-      pfx = label.substr(0, 1);
-      action = 'cancel';
-    }
-
-    // no duplicates allowed
-    if (!mchips.params.duplicates && mchips.contains(label)) {
-      return;
-    }
-
-    $chip = window.material.chip({
-      appendTo: this.$container,
-      prefix: this.params.prefix ? pfx : false,
-      label: label,
-      action: action,
-      onAction: function($c) {
-        if (action === 'cancel') {
-          $c.remove();
-          mchips.sync();
-        }
-        else if (action === 'search') {
-          _.open(val.href);
-        }
-      }
-    });
-
-    // set label for contains and direct chip access
-    if (_.isString(label)) {
-      $chip.attr('data-value', label);
-    }
-  };
-
-  MChips.prototype.prependAdd = function() {
-    var
-      mchips = this,
-      $chip = window.material.chip({
-        label: '<input class="mdl-chip__input"/>',
-        action: 'done',
-        onAction: function($c) {
-          var $mci = $c.find('.mdl-chip__input'), val = $mci.val();
-          $mci.val('');
-          mchips.add(val);
-          mchips.sync();
-        }
-      });
-
-    this.$container.prepend($chip);
-    this.$container.find('.mdl-chip__input').width(120).attr('placeholder', 'Neues Stichwort');
-  };
-
-  MChips.prototype.sync = function() {
-    var vals = '';
-
-    this.$container.find('.mdl-chip').each(function() {
-      vals += (vals ? ' ' : '');
-      vals += $(this).find('.mdl-chip__text').text();
-    });
-
-    this.$sync.val(vals);
-  };
-
-  // check value in sync element
-  // and checks if chip exists
-  MChips.prototype.contains = function(val) {
-    if (!_.isString(val)) { return false; }
-
-    var
-      currentValues = ' ' + this.$sync.val() + ' ',
-      needle = ' ' + $.trim(val) + ' ',
-      chipExists = this.$container.find('[data-value="'+val+'"]').length > 0;
-
-    return window.s.contains(currentValues, needle) && chipExists;
   };
 
   // ========================================
@@ -3457,6 +1328,8 @@
      * @property {boolean} readonly - set input to readonly
      * @property {boolean} disabled - set input to disabled
      * @property {boolean} hidden - set input to hidden
+     * @property {boolean} spellcheck - activate spellcheck or not
+     * @property {boolean} resize=true - activate resizable (for textareas only)
      * @property {!number} tabindex - set input tabindex
      * @property {!number} rows - set rows > 1 to use textarea
      * @property {!number|!string} width=300 - set input width (ex. '100%')
@@ -3497,11 +1370,12 @@
       params.autofocus && $inp.prop('autofocus', true);
       params.readonly && $inp.prop('readonly', true);
       params.placeholder && $inp.attr('placeholder', params.placeholder);
-      $inp.prop('spellcheck', params.spellCheck);
+      $inp.prop('spellcheck', params.spellcheck);
       params.tabindex && $inp.attr('tabindex', params.tabindex);
       params.width && $tf.width(params.width) && $inp.width(params.width);
       params.cls && $tf.addClass(params.cls);
       params.helper && $tf.find('.mdl-textfield__helper').text(params.helper);
+      !params.resize && tpl_type === 'textarea' && $inp.addClass('no-resize');
 
       params.appendTo && $tf.appendTo(params.appendTo);
       params.prependTo && $tf.prependTo(params.prependTo);
@@ -3511,7 +1385,6 @@
       params.disabled && tf.MaterialTextfield.disable();
       params.hidden && $tf.hide();
 
-      // TODO create param to enable/disable clear button
       if (params.clear) {
         $inp.css({paddingRight: 32}); // reduce input size for clear button
         $clear = window.material.button({
@@ -3524,6 +1397,7 @@
           $inp.trigger('focus');
         });
         $clear.attr('tabindex', '-1');
+        if (tpl_type === 'textarea' && params.resize) $clear.css('right', 16);
       }
 
       if (params.date || params.time) {
@@ -3541,6 +1415,7 @@
       }
 
       params.value = '' + params.value;// force to string, otherwise 0 is not set
+      params.value = params.value.trim();
       params.value && setValue(params.value);
 
       if (params.data) {
@@ -3553,13 +1428,21 @@
 
       params.hidden && $tf.hide();
 
+      if (tpl_type === 'textarea' && !params.resize) {
+        $(window).resize(_.debounce(regrowText, 300));
+      }
+
       return $tf;
 
       function setValue(value) {
         const isDisabled = $tf.is('.is-disabled');
+        const isReadonly = $inp.is('[readonly]');
         tf.MaterialTextfield.input_.value = value;
         tf.MaterialTextfield.updateClasses_();
-        $clear && $clear[value && !isDisabled ? 'show' : 'hide']();
+        const isValid = value && !isDisabled && !isReadonly;
+        $clear && $clear[isValid ? 'show' : 'hide']();
+        $inp.css({paddingRight: isValid && params.clear ? 32 : 0}); // reduce input size for clear button
+        regrowText();
       }
       function createDateTimeField() {
         console.assert(window.moment, 'Plugin "moment.js" not found!');
@@ -3638,6 +1521,14 @@
           _.isFunction(params.on.cancel) && params.on.cancel.call(null);
         });
       }
+      function regrowText() {
+        if (tpl_type === 'textarea' && !params.resize) {
+          $inp.height('auto');
+          _.defer(function () {
+            $inp.height($inp[0].scrollHeight);
+          });
+        }
+      }
     },
 
     /**
@@ -3710,7 +1601,7 @@
             // HACK overwrite wrong height = 18 to prevent undetected state clicks (open, close node)
             data.inst.data.core.li_height = 36;
             $mtv.fadeIn('slow');// show the tree now
-            _.isFunction(_.go('on.loaded', params)) && params.on.loaded(data.inst);
+            _.isFunction(_.get(params, 'on.loaded')) && params.on.loaded(data.inst);
           }
         }
       });
@@ -3800,21 +1691,21 @@
               });
             });
             $mtv.fadeIn('slow');// show the tree now
-            _.isFunction(_.go('on.loaded', params)) && params.on.loaded(data.inst);
+            _.isFunction(_.get(params, 'on.loaded')) && params.on.loaded(data.inst);
           },
           'select_node.jstree': function(event, data) {
-            _.isFunction(_.go('on.select', params)) && params.on.select(_.go('rslt.obj', data));
+            _.isFunction(_.get(params, 'on.select')) && params.on.select(_.get(data, 'rslt.obj'));
           },
           'open_node.jstree': function(event, data) {
-            var $node = _.go('rslt.obj', data);
-            _.isFunction(_.go('on.open', params)) && params.on.open($node, data.inst);
+            var $node = _.get(data, 'rslt.obj');
+            _.isFunction(_.get(params, 'on.open')) && params.on.open($node, data.inst);
           },
           'close_node.jstree': function(event, data) {
-            var $node = _.go('rslt.obj', data);
-            _.isFunction(_.go('on.close', params)) && params.on.close($node, data.inst);
+            var $node = _.get(data, 'rslt.obj');
+            _.isFunction(_.get(params, 'on.close')) && params.on.close($node, data.inst);
           },
           'search.jstree': function(event, data) {
-            _.isFunction(_.go('on.search', params)) && params.on.search(data.rslt, data.inst);
+            _.isFunction(_.get(params, 'on.search')) && params.on.search(data.rslt, data.inst);
           }
         });
       }
@@ -3956,7 +1847,7 @@
       function onSelect(target) {
         var tabData = getTabData(target);
 
-        _.isFunction(_.go('on.select', params)) && params.on.select.call(null, target, tabData);
+        _.isFunction(_.get(params, 'on.select')) && params.on.select.call(null, target, tabData);
         _.isFunction(params.onSelect) && params.onSelect(target, tabData);
       }
       function getTabData(target) {
@@ -4084,29 +1975,6 @@
     },
 
     /**
-     * Material Actionbar.
-     * @param {Object} params
-     * @param {Function=} callback
-     * @return {JQuery.Promise<any, any, any>}
-     */
-    actionbar: function(params, callback){
-      if (_.isFunction(callback)) {
-        return new ActionBar(params, callback);
-      }
-
-      const dfr = $.Deferred();
-
-      new ActionBar(params, function() {
-        dfr.resolve(this);
-      });
-
-      return dfr.promise();
-    },
-    actionbarBuilder: function(params){
-      return new ActionBarBuilder(params);
-    },
-
-    /**
      * Material Snackbar / Toast - Transient popup notifications. Stacked.
      * Do not create multiple instances, just use return object with showSnackbar(params),
      * otherwise stacking doesn't work as expected.
@@ -4149,6 +2017,8 @@
      * @param {String} params.label
      * @param {String?} params.id
      * @param {String?} params.title
+     * @param {String?} params.titlePosition
+     * @param {boolean?} params.titleLarge
      * @param {String?} params.cls
      * @param {boolean} [params.raised=false]
      * @param {boolean} [params.colored=false]
@@ -4186,6 +2056,7 @@
       params.colored && $btn.addClass('mdl-button--colored');
       params.accent && $btn.addClass('mdl-button--accent');
       params.icon && $btn.addClass('mdl-button--icon');
+      params.mini && $btn.addClass('mdl-button--mini-icon');
       params.zIndex && $btn.css('zIndex', params.zIndex);
 
       // append right icon and wrap label
@@ -4216,10 +2087,10 @@
       if (params.title && (params.appendTo || params.prependTo)) {
         params.attr = params.attr || {};
         params.attr.id = params.attr.id || params.id || _.uniqueId('mdl-button-');
-        $tooltip = $(TEMPLATES.tooltip(params.attr)).text(params.title).appendTo('body');
-        if (params.titlePosition) {
-          $tooltip.addClass('mdl-tooltip--' + params.titlePosition);
-        }
+        const title = params.title + (params.keyCode ? ' (' + params.keyCode + ')' : '');
+        $tooltip = $(TEMPLATES.tooltip(params.attr)).text(title).appendTo($btn);
+        if (params.titlePosition) $tooltip.addClass('mdl-tooltip--' + params.titlePosition);
+        if (params.titleLarge) $tooltip.addClass('mdl-tooltip--large');
         params.zIndex && $tooltip.css('zIndex', params.zIndex);
         _.each(params.data, function(d, dn) {
           $tooltip.attr('data-' + dn, d);
@@ -4247,7 +2118,7 @@
           .change(function() {
             params.on && _.isFunction(params.on.upload) && params.on.upload(this.files);
           });
-        !_.go('upload.multiple', params) && $upload.prop('multiple', false);
+        !_.get(params, 'upload.multiple') && $upload.prop('multiple', false);
       }
 
       // popup menu for button
@@ -4270,8 +2141,8 @@
       if (params.keyCode && _.isObject(window.Mousetrap)) {
         FN.register_keycode(params.keyCode, params.keyCodeDescr);
         window.Mousetrap.bind(params.keyCode, function() {
-          $btn.click();
-          return false;
+          $btn.trigger('click');
+					return false;
         });
       }
 
@@ -4303,6 +2174,7 @@
         params.cls = params.cls || '';
         params.cls += ' mdl-button--colored';
       }
+      params.mini && $fab.addClass('mdl-button--mini-fab');
       params.cls && $fab.addClass(params.cls);
       params.appendTo && $fab.appendTo(params.appendTo);
       params.prependTo && $fab.prependTo(params.prependTo);
@@ -4397,12 +2269,13 @@
       attachEvt(elemsToClick, 'click');
 
       // TODO manual direction
-      $('#' + params.id)
+      const $el = $('#' + params.id)
+      $el
         //.removeClass('mfb-component--br')
         .css('position', 'absolute')
         .offset(mfbOffset);
 
-      $wrapper = $('#' + params.id).find('.mfb-component__wrap');
+      $wrapper = $el.find('.mfb-component__wrap');
 
       // set background
       $('.mfb-component__button--main, .mfb-component__button--child', $wrapper).css({
@@ -4528,33 +2401,39 @@
      * @param {Object=} params.offset - define drawer offset
      * @param {Number=} params.offset.top - offset top
      * @param {Number=} params.offset.bottom - offset bottom
+     * @param {boolean} params.right - create drawer on right side
+     * @param {string} params.class - class names to add
+     * @param {Object} params.defaultwidth?
+     * @param {Number} params.defaultwidth.mini? - drawer width in mini mode
+     * @param {Number} params.defaultwidth.fixed? - drawer width in fixed mode
      * @return {jQuery}
      */
     drawer: function(params){
-      params = $.extend({}, DEFAULTS.drawer, params);
+      params = $.extend({}, DEFAULTS.drawer, params)
 
-      $(TEMPLATES.drawer(params)).appendTo('body');
+      $(TEMPLATES.drawer(params)).appendTo('body')
 
-      var
-        $drawer = $('.mdl-drawer'),
-        $overlay = $('.mdl-drawer-overlay'),
-        drawerMode,
-        $menu,
-        cbp,
-        dheight = params.offset.top === 0 && params.offset.bottom === 0
+      const $drawer = $('.mdl-drawer').addClass(params.class)
+      const $overlay = $('.mdl-drawer-overlay')
+      const dheight = params.offset.top === 0 && params.offset.bottom === 0
           ? '100%'
-          : 'calc(100% - ' + (params.offset.top + params.offset.bottom) + 'px)';
+          : 'calc(100% - ' + (params.offset.top + params.offset.bottom) + 'px)'
+      const width = params.mini ? params.defaultwidth.mini : params.width || params.defaultwidth.fixed
+      const tx = params.right ? width : -width
+
+      let drawerMode
+      let cbp
 
       $drawer.css({
         position: 'fixed',
         top: params.offset.top,
         bottom: params.offset.bottom,
-        width: params.mini ? params.width.mini : params.width.fixed,
+        width,
         height: dheight,
-        transform: params.mini ? 'translateX(-90px)' : 'translateX(-256px)'
-      });
+        transform: `translateX(${tx}px)`
+      })
 
-      $menu = $(TEMPLATES.list()).appendTo($drawer);
+      const $menu = $(TEMPLATES.list()).appendTo($drawer)
 
       if (params.search) {
         var $search = $('<div class="mdl-layout-search"/>').css({ padding: '8px 16px 0' });
@@ -4602,14 +2481,17 @@
 
       $menu.find('.mdl-list__item').attr('tabindex', '-1').css({
         cursor: 'pointer'
-      });
+      })
 
       if (params.keyCode && _.isObject(window.Mousetrap)) {
         FN.register_keycode(params.keyCode, params.keyCodeDescr);
         Mousetrap.bind(params.keyCode, toggleDrawer);
       }
 
-      $(params.trigger).on('click', toggleDrawer);
+      $(params.trigger).on('click', toggleDrawer)
+      $overlay.on('click', function() {
+        closeDrawer()
+      })
 
       $menu
         .on('click.mdl-drawer', '.mdl-list__item', function() {
@@ -4634,16 +2516,17 @@
         resizeHandler();
       }
 
-      params.open && openDrawer();
+      params.open && openDrawer()
 
-      return $drawer;
+      return $drawer
 
       function addList(list) {
-        var $item, itemId;
+        let $item
+        let itemId
         _.each(list, function(li, i) {
-          itemId = li.id || _.uniqueId('mdl-list-item-');
-					li.action = li.action || '';
-					li.subtitle = li.subtitle || '';
+          itemId = li.id || _.uniqueId('mdl-list-item-')
+					li.action = li.action || ''
+					li.subtitle = li.subtitle || ''
           if (li.subtitle) {
             // params: avatar (material icons), title, body, subtitle, action (material icons)
             $item = $(TEMPLATES.listItemThreeLine(li)).data('action', li);
@@ -4656,17 +2539,18 @@
             // params: avatar, title
             $item = $(TEMPLATES.listItemIconSingle(li)).data('action', li);
           }
-          $item.attr('id', itemId);
+          $item.attr('id', itemId)
+          if (li.cls) $item.addClass(li.cls)
           // if (!li.action) $item.find('.mdl-list__item-secondary-content').remove();
           if (li.color) {
             $item.find('.mdl-list__item-avatar').css({ backgroundColor: li.backgroundColor, color: li.color });
           }
-          li.active && $item.addClass('is-active');
-          (i === list.length-1) && $item.addClass('mdl-menu__item--full-bleed-divider');
+          li.active && $item.addClass('is-active')
+          if (i === list.length - 1 || li.divider) $item.addClass('mdl-menu__item--full-bleed-divider')
 					if (li.badge) {
 						$item.find('.mdl-list__item-avatar.material-icons').addClass('mdl-badge').attr('data-badge', li.badge);
 					}
-          $menu.append($item);
+          $menu.append($item)
 					if (li.body) {
             window.material.tooltip({
               id: itemId,
@@ -4674,22 +2558,21 @@
               cls: 'mdl-tooltip--right'
             });
           }
-        });
+        })
       }
 
       // open drawer and handle events (key navigation, click to outside to close)
       function openDrawer() {
-        if ($drawer.is('.is-visible')) return false;
+        if ($drawer.is('.is-visible')) return false
 
-        var
-          curli = 0,
-          $items = $menu.find('.mdl-list__item');
+        const $items = $menu.find('.mdl-list__item')
+        let curli = 0
 
-        setDrawerToggle();
-        params.overlay && $overlay.addClass('is-visible');
+        setDrawerToggle()
+        params.overlay && $overlay.addClass('is-visible')
         $drawer
           .css('transform', 'translateX(0)')
-          .addClass('is-visible');
+          .addClass('is-visible')
 
         // $items.eq(curli).trigger('focus');
 
@@ -4697,30 +2580,30 @@
           .on('click.mdl-drawer', function() {
             // all other modes stays open
             drawerMode === 'hide' && closeDrawer();
-          });
+          })
 
         $drawer
           // TODO use keydown events only when focus is in drawer
           .on('keydown.mdl-drawer', function(event) {
-            (event.key === 'Escape') && closeDrawer();
+            (event.key === 'Escape') && closeDrawer()
             if (event.key === 'ArrowDown') {
               if (curli < $items.length) {
-                $items.eq(++curli).trigger('focus');
+                $items.eq(++curli).trigger('focus')
               }
             }
             else if (event.key === 'ArrowUp') {
               if (curli > 0) {
-                $items.eq(--curli).focus();
+                $items.eq(--curli).focus()
               }
             }
             else if (event.key === 'Enter') {
-              $items.eq(curli).trigger('click');
+              $items.eq(curli).trigger('click')
             }
-          });
+          })
 
-        params.on.open();
+        if (params.on.open) params.on.open()
 
-        return false;
+        return false
       }
       function closeDrawer(event) {
         if (!$drawer.is('.is-visible')) return false;
@@ -4740,12 +2623,12 @@
         $(document).off('.mdl-drawer');
         $drawer
           .off('.mdl-drawer')
-          .css('transform', 'translateX(-330px)')
+          .css('transform', !params.right ? 'translateX(-330px)' : 'translateX(330px)')
           .removeClass('is-visible');
         $overlay.removeClass('is-visible');
         setDrawerToggle();
 
-        params.on.close();
+        if (params.on.close) params.on.close();
 
         return false;
       }
@@ -4969,27 +2852,28 @@
      * @returns {*|HTMLElement}
      */
     list: function(params){
-      var
-        $list,
-        $item;
-
-      params = $.extend({}, DEFAULTS.list, params);
-      $list = $(TEMPLATES.list());
+      params = $.extend({}, DEFAULTS.list, params)
+      const $list = $(TEMPLATES.list())
+      let $item
 
       // singleline params [{ title, avatar }]
       // twoline    params [{ title, avatar, body, action }]
+      // threeline  params [{ title, avatar, body, action, subtitle }]
+      let itemTemplate = 'listItemTwoLine'
+      if (params.singleLine) itemTemplate = 'listItemIconSingle'
+      if (params.lines === 3) itemTemplate = 'listItemThreeLine'
       _.each(params.items, function(li) {
         $list.append(
-          $item = $(TEMPLATES[params.singleLine ? 'listItemIconSingle' : 'listItemTwoLine'](li)).data('item', li)
-        );
-        li.action && $item.attr('data-action', li.action);
-      });
+          $item = $(TEMPLATES[itemTemplate](li)).data('item', li)
+        )
+        if (typeof li.action !== 'undefined') $item.attr('data-action', li.action)
+      })
       //$list.find('.mdl-list__item-secondary-action').eq(1).addClass('mdl-list__item-secondary-action--highlighted');
 
-      params.appendTo && $list.appendTo(params.appendTo);
-      params.prependTo && $list.prependTo(params.prependTo);
+      params.appendTo && $list.appendTo(params.appendTo)
+      params.prependTo && $list.prependTo(params.prependTo)
 
-      return $list;
+      return $list
     },
 
     /**
@@ -4999,7 +2883,7 @@
      * @return {jQuery} card
      */
     card: function(params){
-      var $card;
+      let $card;
 
       params = params || {};
       params.title = params.title || 'Card Title';
@@ -5045,30 +2929,6 @@
     },
 
     /**
-     * Material Steppers Component.
-     * @see https://material.google.com/components/steppers.html
-     * @param {object} params
-     * @param {function} callback
-     */
-    stepper: function(params, callback){
-      var Stepper = new MStepper(params, callback);
-      return {
-        next: Stepper.next.bind(Stepper),
-        spinner: Stepper.spinner.bind(Stepper),
-        alldone: Stepper.alldone.bind(Stepper)
-      };
-    },
-
-    /**
-     * Material Table Component.
-     * @param {Object} params
-     * @return {MTable} the table element
-     */
-    table: function(params){
-      return new MTable(params);
-    },
-
-    /**
      * Material Modal Dialog.
      * @param {Object} params
      * @param {(String|HTMLElement|JQuery)} params.appendTo
@@ -5077,10 +2937,12 @@
      * @param {(String|Function|Object)} params.content
      * @param {(String|HTMLElement|JQuery)} params.$content
      * @param {(Number|String)} params.width
+     * @param {String} params.cls - add class attribute
      * @param {Boolean} params.open
      * @param {Number} params.timeout
      * @param {String} params.agree
      * @param {Boolean} params.agreeColored? - set colored class to agree button
+     * @param {Boolean} params.agreeDisabled? - set agree button to disabled
      * @param {String} params.disagree
      * @param {Boolean} params.destroy - remove element on close
      * @param {Object} params.ajax
@@ -5125,6 +2987,7 @@
       // $dlg.attr('data-backdrop', 'false');
 
       params.width && $dlg.width(params.width);
+      params.cls && $dlg.addClass(params.cls);
       if (params.fullwidth) {
         // mdl-dialog__actions--full-width
       }
@@ -5148,6 +3011,9 @@
         params.agreeColored && $agree.addClass('mdl-button--raised mdl-button--colored');
         !params.agreeColored && params.submitOnReturn && $agree.addClass('mdl-button--colored');
         params.disagree && $disagree.removeClass('hidden');
+        window.componentHandler.upgradeElement($agree[0]);
+        window.componentHandler.upgradeElement($disagree[0]);
+        if (params.agreeDisabled) $agree[0].MaterialButton.disable();
       }
 
       /**
@@ -5243,9 +3109,8 @@
         });
       }
       function closeFAB() {
-        var
-        $fab = $(params.fab),
-        dlgCss = {
+        const $fab = $(params.fab);
+        const dlgCss = {
           width: $dlg.width(),
           height: $dlg.height(),
           margin: 'auto',
@@ -5253,8 +3118,9 @@
           left: '',
           borderRadius: 0,
           opacity: 1,
-          zIndex: $dlg.zIndex()
+          zIndex: $dlg.css('z-index')
         };
+
         $dlg.children().hide();
         $dlg.css({
           width: $fab.width(),
@@ -5288,7 +3154,7 @@
      * });
      *
      * @param {Array} opts radio options { id, name, value, label, checked }
-     * @param {Object} params
+     * @param {Object=} params?
      * @param {String=} params.name?
      * @param {(String|JQuery<HTMLElement>|jQuery|HTMLElement)=} params.appendTo? - selector, node or jquery element
      * @return {Array} radios list of material radio templates
@@ -5388,60 +3254,6 @@
     },
 
     /**
-     * Material Select Component.
-     * @param params
-     * @returns {MSelect}
-     */
-    select: function(params){
-      return new MSelect(params);
-    },
-    selectFrom: function(selector, params){
-      var
-        $sels = $(selector),
-        $sel,
-        $opts,
-        opts = [],
-        seli,// created material select instance
-        rslt = [];// collection of instances
-
-      if (!$sels.length) { return; }
-
-      params = params || {};
-
-      let $o;
-      $sels.each(function () {
-        $sel = $(this).closest('select').hide();
-        $opts = $(this).find('option');
-        opts.length = 0;
-        $opts.each(function () {
-          $o = $(this);
-          opts.push({
-            value: this.value,
-            label: this.innerText,
-            menu: $o.data('menu'),
-            selected: $o.is(':selected'),
-            disabled: $o.is(':disabled')
-          });
-        });
-        seli = window.material.select({
-          appendTo: params.appendTo || $sel.parent(),
-          options: opts,
-          name: params.name,
-          label: params.label || $sel.prev().text(),
-          trigger: $sel,
-          parent: params.parent,
-          padded: params.padded,
-          width: params.width,
-          disabled: $sel.is(':disabled') || params.disabled,
-          bottomMenu: true
-        });
-        rslt.push(seli);
-      });
-
-      return rslt;
-    },
-
-    /**
      * Material Icon.
      * @param {String} iconName - name of the icon
      * @return {String} html for icon
@@ -5449,93 +3261,6 @@
     icon: function(iconName){
       if (!iconName || !_.isString(iconName)) return '';
       return TEMPLATES.icon({ icon: iconName });
-    },
-
-    /**
-     * Material Chips
-     * @param  {Object} params settings
-     * @return {MChips} new Material Chips instance
-     */
-    chips: function(params){
-      return new MChips(params);
-    },
-    chip: function(params){
-      params = $.extend({}, DEFAULTS.chip, params);
-
-      var
-        $chip = $(TEMPLATES.chip(params)),// params: prefixAction, prefix, label, action
-        $prefixAction,
-        $action;
-
-      if (params.prefix) {
-        $chip.addClass('mdl-chip--contact');
-        $chip.find('.mdl-chip__contact')
-          .addClass(params.prefixClass)
-          .removeClass('hidden');
-      }
-
-      if (params.prefixAction) {
-        $chip.css('paddingLeft', 4);
-        $prefixAction = $chip.find('.mdl-chip__action-prefix')
-          .removeClass('hidden')
-          .attr('tabindex', '-1');
-        $prefixAction.on('click', function() {
-          _.isFunction(params.onActionPrefix) && params.onActionPrefix($chip);
-          params.on.prefix($chip);
-          return false;
-        });
-      }
-
-      if (params.action) {
-        $chip.addClass(params.actionClass);
-        $action = $chip.find('.mdl-chip__action').not('.mdl-chip__action-prefix')
-          .removeClass('hidden')
-          .attr('tabindex', '-1');
-        params.actionDisabled && $action.addClass('disabled');
-        $action.on('click',function() {
-          _.isFunction(params.onAction) && params.onAction($chip);
-          params.on.action($chip);
-          return false;
-        });
-      }
-
-      params.appendTo && $chip.appendTo(params.appendTo);
-
-      if (params.editable) {
-        $chip.on('click', function () {
-          const $text = $(this).find('.mdl-chip__text');
-          const text = $text.text();
-
-          window.material.dialog({
-            // title: 'Edit',
-            content: function() {
-              const $content = $('<div/>');
-              window.material.textfield({
-                appendTo: $content,
-                // label: 'new value',
-                value: text,
-                width: '100%'
-              });
-              return $content;
-            },
-            width: 420,
-            open: true,
-            submitOnReturn: true,
-            agree: params.agree,
-            disagree: params.disagree,
-            on: {
-              agree: function() {
-                const newText = $(this).find('input').val();
-                $text.text(newText);
-                this.close();
-                params.on.edit($chip, newText);
-              }
-            }
-          });
-        });
-      }
-
-      return $chip;
     },
 
     /**
@@ -5576,27 +3301,28 @@
 
     /**
      * Material Tooltip.
-     * @param {Object} params id, title, appendTo, cls
+     * @param {Object} params
+     * @param {(String|HTMLElement|JQuery)} params.appendTo
      * @param {string} params.id
      * @param {string} params.title
      * @param {string} params.cls
+     * @param {(String|HTMLElement|JQuery)?} params.add
      * @returns {HTMLElement|jQuery|undefined}
      */
     tooltip: function(params){
       if (_.isEmpty(params) || !params.id) {
-        console.warn('window.material.tooltip: params.id required!');
-        return;
+        console.warn('window.material.tooltip: params.id required!')
+        return
       }
       if (!params.title) {
-        console.warn('window.material.tooltip: params.title required!');
-        return;
+        console.warn('window.material.tooltip: params.title required!')
+        return
       }
 
-      var
-        $tooltip = $(TEMPLATES.tooltip(params)).text(params.title),
-        tooltip = $tooltip.get(0),
-        $for = $('#'+params.id),
-        for_bcr = $for.length ? $for.get(0).getBoundingClientRect() : {};
+      const $tooltip = $(TEMPLATES.tooltip(params)).html(params.title)
+      const tooltip = $tooltip.get(0)
+      const $for = $('#'+params.id)
+      const for_bcr = $for.length ? $for.get(0).getBoundingClientRect() : {}
 
       // set tooltip direction class to "top"
       // if element is below half the window height
@@ -5604,9 +3330,9 @@
         params.cls = 'mdl-tooltip--top';
       }
 
-      params.appendTo = params.appendTo || 'body';
-      params.cls && $tooltip.addClass(params.cls);
-      params.appendTo && $tooltip.appendTo(params.appendTo);
+      params.appendTo = params.appendTo || 'body'
+      params.cls && $tooltip.addClass(params.cls)
+      params.appendTo && $tooltip.appendTo(params.appendTo)
 
       // bind more elements to the same tooltip
       // this can reduce the number of identical tooltips
@@ -5614,64 +3340,96 @@
         // before we proxy the context, wait for the upgraded component
         $tooltip.one('mdl-componentupgraded', function() {
           // create handler which delegate the events to the original handler
-          var myBoundMouseEnterHandler = function(event) {
+          const myBoundMouseEnterHandler = function(event) {
               this.handleMouseEnter_.call(this, event);
-            },
-            myBoundMouseLeaveHandler = function(event) {
+            }
+          const myBoundMouseLeaveHandler = function(event) {
               this.hideTooltip_.call(this, event);
-            };
+            }
           // TODO append touch events (see material.js)
           $(params.add)
             .on('mouseenter', $.proxy(myBoundMouseEnterHandler, this.MaterialTooltip))
-            .on('mouseleave', $.proxy(myBoundMouseLeaveHandler, this.MaterialTooltip));
-        });
+            .on('mouseleave', $.proxy(myBoundMouseLeaveHandler, this.MaterialTooltip))
+        })
       }
 
-      window.componentHandler.upgradeElement(tooltip);
+      window.componentHandler.upgradeElement(tooltip)
 
-      return $tooltip;
+      return $tooltip
     },
 
     /**
      * Material Dropdown.
      * @param {Object} params
+     * @param {(String|HTMLElement|jQuery)} params.appendTo="body" - where to append the dropdown container
      * @param {(String|HTMLElement|jQuery)} params.element? - element for the dropdown (used to get offset and size)
      * @param {(String|HTMLElement|jQuery)} params.parent? - offset parent for the dropdown (used to get offset and size)
+     * @param {String?} params.cls? - add class to dropdown
+     * @param {Number?} params.offsetX? - add offset to calced left value
+     * @param {Number?} params.offsetY? - add offset to calced top value
      * @param {Array} params.items - format = [{label, value, disabled]
      * @param {Object} params.on? - callback handler
      * @param {Function} params.on.click? - on click callback
      * @param {Function} params.on.close? - on close callback
      * @param {Function} params.on.pos? - on pos calculation callback
+     * @param {Function} params.on.item? - on each item with item element callback
+     * @param {Boolean} params.singleLine? - select single line template
+     * @param {Number} params.lines? - select three line template
+     * @param {Array} params.list? - list of items to render in dropdown
      * @return {jQuery} dropdown element
      */
     dropdown: function(params){
-      params = $.extend({}, DEFAULTS.dropdown, params);
-      const
-        $dropdown = $('<div/>').addClass('mdl-dropdown').appendTo('body'),
-        $list = $('<ul/>').addClass('mdl-dropdown__items').appendTo($dropdown);
+      params = $.extend({}, DEFAULTS.dropdown, params)
+      const $dropdown = $('<div/>').addClass('mdl-dropdown').appendTo(params.appendTo)
+      const  $list = $('<ul/>').addClass('mdl-dropdown__items').appendTo($dropdown)
 
+      if (params.cls) $dropdown.addClass(params.cls)
+
+      if (params.list) {
+        // singleline   params [{ title, avatar }]
+        // singledetail params [{ title, avatar, hint }]
+        // twoline      params [{ title, avatar, body, action }]
+        // threeline    params [{ title, avatar, body, action, subtitle }]
+        // let itemTemplate = 'listItemTwoLine'
+        let itemTemplate = 'listItemIconDetail'
+        if (params.singleLine) itemTemplate = 'listItemIconSingle'
+        if (params.lines === 3) itemTemplate = 'listItemThreeLine'
+        let $item
+        _.each(params.list, function(li) {
+          $list.append(
+            $item = $(TEMPLATES[itemTemplate](li)).data('item', li)
+          )
+          if (typeof li.action !== 'undefined') $item.attr('data-action', li.action)
+          if (li.selected) $item.addClass('is-selected')
+          _.isFunction(params.on.item) && params.on.item(li, $item)
+        })
+      }
+
+      const mdlButton = window.material.button
       _.each(params.items, function(o) {
-        $('<li/>').append(window.material.button(o).data('item', o))
+        $('<li/>').append(mdlButton(o).data('item', o))
           .attr('data-val', o.value)
           .addClass(o.selected ? 'is-selected' : '')
           .appendTo($list);
-      });
+      })
 
-      $dropdown.on('click', '.mdl-button', function() {
-        _.isFunction(params.on.click) && params.on.click($(this).data('item'));
-        close();
+      $dropdown.on('click', '.mdl-button, .mdl-list__item', function() {
+        const item = $(this).data('item')
+        _.isFunction(params.on.click) && params.on.click(item);
+        if (!item.stay) close();
         return false;
-      });
+      })
 
       _.clickout({
         selector: $dropdown,
         callback: close
-      });
+      })
 
-      setPos();
-      $dropdown.addClass('is-visible');
+      setPos()
+      $dropdown.addClass('is-visible')
+      $dropdown.close = close
 
-      return $dropdown;
+      return $dropdown
 
       function close() {
         $dropdown.removeClass('is-visible');
@@ -5688,15 +3446,17 @@
           // current bottom y position of the dropdown
           bottom = $parent.height() - rect.top - mheight,
           // take margin / padding into account
-          topgap = 0,
+          topgap = rect.height + params.offsetY,
           //topgap = parseInt($(params.element).css('paddingTop'), 10) || 0,
           // height of input control
 					iheight = 0,
           // iheight = $(this.tf.input_).outerHeight(true),
           // direction up or down
           ddtop = bottom > 0 ? rect.top + topgap : rect.top - mheight + iheight,
-          ddleft = rect.left,
+          ddleft = rect.left + params.offsetX,
           onPos;
+
+        ddtop += $parent.scrollTop()
 
         if (_.isFunction(params.on.pos)) {
           onPos = params.on.pos(ddtop, ddleft, params.element, $dropdown);
@@ -5704,6 +3464,11 @@
             ddtop = onPos.top;
             ddleft = onPos.left;
           }
+        }
+
+        const maxWidth = $parent.width() - ddleft - 32
+        if ($dropdown.width() > maxWidth) {
+          $dropdown.width(maxWidth)
         }
 
         $dropdown.css({ top: ddtop, left: ddleft });
@@ -5726,7 +3491,9 @@
         $tf, tf,
         $tooltip;
 
-      $sliderWrapper.height(30);
+      // $sliderWrapper.height(30);
+      $sliderWrapper.height('auto')
+      if (params.width) $sliderWrapper.width(params.width)
       $slider.attr('id', params.id);
       params.appendTo && $sliderWrapper.appendTo(params.appendTo);
 
@@ -5744,15 +3511,18 @@
       }).css({padding:0});
       tf = $tf.get(0).MaterialTextfield;
 
-      $slider.width('calc(100% - 100px)');
-      $slider.next().width('calc(100% - 112px)').css({marginLeft:76});
+      if (params.input === false) $tf.hide()
+      else {
+        $slider.width('calc(100% - 100px)');
+        $slider.next().width('calc(100% - 112px)').css({marginLeft:76});
+      }
 
       params.scala && buildScala();
 
       if (params.tooltip) {
         $tooltip = window.material.tooltip({
           id: params.id,
-          title: '' + (params.value || '0')
+          title: '' + (params.value || '0') + (params.suffix || '')
         });
       }
 
@@ -5760,7 +3530,7 @@
         var newValue = this.value;
         tf.input_.value = newValue;// + params.suffix;
         tf.updateClasses_();
-        $tooltip && $tooltip.text(newValue);
+        $tooltip && $tooltip.text(newValue + params.suffix);
         params.on && _.isFunction(params.on.change) && params.on.change(newValue);
       });
 
@@ -5798,16 +3568,16 @@
     },
 
     loadIcons: function(){
-      var found = _.find($('link'), function(el) {
+      const found = _.find($('link'), function(el) {
         if (el && el.href && el.href.search(/(Material\+Icons)$/) !== -1) {
           return true;
         }
-      });
+      })
       // if not found, append link to load Material Icons
       if (_.isUndefined(found)) {
         $('head')
           .append('<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">')
-          .append('<link rel="stylesheet" href="https://cdn.materialdesignicons.com/2.5.94/css/materialdesignicons.min.css">');
+          // .append('<link rel="stylesheet" href="https://cdn.materialdesignicons.com/2.5.94/css/materialdesignicons.min.css">');
       }
     },
     loadFont: function(){
@@ -5832,22 +3602,39 @@
      * @param {String} params.title?
      * @param {Function} params.content?
      * @param {Boolean} [params.scroll=false]
+     * @param {Boolean} [params.expandable=false] - show header textfield with expandable input and search button
+     * @param {Array} [params.gridsize=[2,8]] - set grid cell sizes
+     * @param {Boolean} [params.hideSidebar=false] - set sidebar to hidden
      * @param {Object} params.on - callback handler
      * @param {Function} params.on.close
      * @param {Function} params.on.loaded
-     * @return {{$article: JQuery<HTMLElement>|jQuery|HTMLElement, $layout: JQuery<HTMLElement>|jQuery|HTMLElement, $content: JQuery<HTMLElement>|jQuery|HTMLElement, close: Function}}
+     * @param {Function} params.on.toggle
+     * @return {{$article: JQuery<HTMLElement>|jQuery|HTMLElement, $layout: JQuery<HTMLElement>|jQuery|HTMLElement, $main: JQuery<HTMLElement>|jQuery|HTMLElement, $sidebar: JQuery<HTMLElement>|jQuery|HTMLElement, $content: JQuery<HTMLElement>|jQuery|HTMLElement, close: Function}}
      */
     popup: function(params){
       params = $.extend({}, DEFAULTS.popup, params);
       var
         $layout,
         $article = $(TEMPLATES.article({ title: params.title || '' })),
-        $content = $article.find('.material-belt-article-content');
+        $content = $article.find('.material-belt-article-content'),
+        $main = $article.find('.material-belt-article-main'),
+        $cells = $article.find('.mdl-cell');
 
-      $article.find('.mdl-textfield--expandable').hide();
+      !params.expandable && $article.find('.mdl-textfield--expandable').remove();
 
+      $main.height('calc(100vh - 64px)')
       params.scroll && $article.find('.mdl-layout__header').addClass('mdl-layout__header--scroll');
       // $article.find('.mdl-layout__header').css({ position: 'fixed' });
+
+      const $cell1 = $cells.eq(0).removeClass('mdl-cell--2-col').addClass('mdl-cell--' + params.gridsize[0] + '-col');
+      $cells.eq(1).removeClass('mdl-cell--8-col').addClass('mdl-cell--' + params.gridsize[1] + '-col');
+      const icon = params.hideSidebar ? 'view_compact' : 'view_stream';
+      const $toggleButton = window.material.button({
+        prependTo: $article.find('.mdl-layout__header-row'),
+        id: _.uniqueId('material-belt-article__toggle-'),
+        label: window.material.icon(icon),
+        icon: true
+      }).css({marginRight: 16}).on('click', toggleSidebar);
 
       $content.empty();
       if (_.isFunction(params.content)) {
@@ -5871,24 +3658,38 @@
           .click(function () {
             _.isFunction(params.on.close) && params.on.close($layout);
           });
+
+        $(document).on('keyup.popup', function(event) {
+          if (event.key === 'Escape') {
+            _.isFunction(params.on.close) && params.on.close($layout);
+          }
+        });
       }
 
-      $(document).on('keyup', function(event) {
-        if (event.key === 'Escape') {
-          _.isFunction(params.on.close) && params.on.close($layout);
-        }
-      });
+      params.hideSidebar && $toggleButton.trigger('click');
 
       return {
         $layout: $layout,
         $article: $article,
+        $main: $main,
         $content: $content,
+        $sidebar: $cell1,
         close: function() {
+          $(document).off('.popup')
           $layout.fadeOut(function() {
             $layout.remove();
           });
         }
       };
+
+      function toggleSidebar() {
+        const open = $cell1.is(':visible')
+        $cell1[open ? 'hide' : 'show']();
+        $toggleButton.find('i').text(open ? 'view_compact' : 'view_stream');
+        $content.removeClass('mdl-cell--' + params.gridsize[1] + '-col mdl-cell--12-col')
+            .addClass(open ? 'mdl-cell--12-col' : 'mdl-cell--' + params.gridsize[1] + '-col');
+        _.isFunction(params.on.toggle) && params.on.toggle(!open);
+      }
     },
 
     /**
@@ -5900,7 +3701,12 @@
     },
 
     // TODO manage content argument
-    prompt: function(params, callback){
+    /**
+     * Material prompt. Predefined dialog for simple agree/disagree confirmation.
+     * @param {Object} params
+     * @param {*} callback
+     */
+    dlg: function(params, callback){
       callback = callback || $.noop;
       params = $.extend(true, {}, {
         title: '',
@@ -5921,6 +3727,15 @@
         }
       }, params);
       return window.material.dialog(params);
+    },
+
+    /**
+     * Return a template.
+     * @param templateName
+     * @return {*}
+     */
+    template: function(templateName) {
+      return TEMPLATES[templateName]
     }
   };
 
@@ -6030,31 +3845,6 @@
       return parent_space;
     },
 
-    // Get deep object data
-    // ex. _.getObject('pbox.data.user.id')
-    getObject: function(parts, create, obj){
-      if (typeof parts === 'undefined') { return parts; }
-
-      var p, def;
-
-      if (typeof parts === 'string') { parts = parts.split('.'); }
-      if (typeof create !== 'boolean') {
-        def = obj;// use 3. argument as default
-        obj = create;// swap obj when not create
-        create = void 0;
-      }
-      obj = obj || window;// create on global as default
-      while (obj && parts.length) {
-        p = parts.shift();
-        if (typeof obj[p] === 'undefined' && create) { obj[p] = {}; }
-        obj = obj[p];
-      }
-
-      typeof obj === 'undefined' && typeof def !== 'undefined' && (obj = def);
-
-      return obj;
-    },
-
     /**
      * Parse string to JSON object.
      * @param {string} str
@@ -6101,8 +3891,8 @@
       }
 
       var
-        href = action.href || _.getObject('bindTo.href', action),
-        target = action.target || _.getObject('bindTo.target', action),
+        href = action.href || _.get(action, 'bindTo.href'),
+        target = action.target || _.get(action, 'bindTo.target'),
         winHandle;
 
       if (!href) { return; }// required

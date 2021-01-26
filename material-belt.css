@@ -60,6 +60,23 @@
   background-color: #BDC1C6;
 }
 
+.mdl-snackbar .mdl-snackbar__text {
+  white-space: pre-line; /* support line breaks with \r\n */
+}
+
+/* Material List Helper */
+.mdl-list__item.is-active {
+  background-color: #EEE;
+}
+.mdl-list__item.is-selected {
+  background-color: rgba(241, 125, 14, 0.6);
+}
+.mdl-list__item-secondary-action .material-icons {
+  color: lightgray;
+}
+.mdl-list__item-secondary-action.mdl-list__item-secondary-action--highlighted .material-icons {
+  color: gold;
+}
 .mdl-list .mdl-list__header {
   display: flex;
   font-size: 16px;
@@ -73,6 +90,24 @@
 }
 .mdl-list .mdl-list__item-secondary-action .material-icons {
   color: rgba(0, 0, 0, 0.87);
+}
+.mdl-list__itemx:hover {
+  outline: 0;
+  background-color: #eee;
+  color: #000;
+}
+.mdl-list__item:hover,
+.mdl-list__item:focus {
+  outline: 2px dotted #777;
+  color: #000;
+}
+.mdl-list.mdl-list--dense .mdl-list__item {
+  padding: 8px;
+  min-height: 32px;
+}
+.mdl-list.mdl-list--small .mdl-list__item {
+  padding: 4px;
+  min-height: 24px;
 }
 
 .material-belt__select {
@@ -137,7 +172,8 @@
   text-overflow: ellipsis;
   color: rgba(0, 0, 0, 0.60);
 }
-.mdl-textfield__helper:empty {
+.mdl-textfield__helper:empty,
+.mdl-textfield.is-invalid .mdl-textfield__helper {
   display: none;
 }
 
@@ -187,7 +223,11 @@
  */
 .mdl-menu__item {
   font-family: Roboto, Helvetica, Arial, sans-serif;
-  font-weight: 600;
+  font-weight: 500;
+}
+.mdl-menu--dense .mdl-menu__item {
+  height: 32px;
+  line-height: 32px;
 }
 
 .mdl-menu__item select {
@@ -261,17 +301,6 @@
   margin-left: 6px;
 }
 
-.mdl-list__item:focus {
-  outline: 0;
-  background-color: #eee;
-  color: #000;
-}
-.mdl-list__item:hover {
-  outline: 0;
-  background-color: #ddd;
-  color: #000;
-}
-
 .mdl-radio__label {
   font-family: "Roboto", "Helvetica", "Arial", sans-serif;
 }
@@ -297,6 +326,9 @@ dialog.mdl-dialog--polyfill {
 /*
  * Helper Material Dialog
  */
+.mdl-dialog {
+  padding: 0; /* childs have padding defined */
+}
 .mdl-dialog > .mdl-dialog__title {
   font-size: 20px;
   font-weight: 500;
@@ -307,7 +339,8 @@ dialog.mdl-dialog--polyfill {
   margin: 0 auto;
 }
 .mdl-dialog > .mdl-dialog__content {
-    color: rgba(0, 0, 0, 0.60);
+  padding: 12px 24px;
+  color: rgba(0, 0, 0, 0.60);
 }
 .mdl-dialog > .mdl-dialog__subtitle {
   padding: 24px 24px 0;
@@ -355,7 +388,9 @@ dialog.mdl-dialog--polyfill {
   border: none;
   background: transparent;
 }
-
+.mdl-chip__input:focus {
+  outline: none;
+}
 .mdl-chip__action.mdl-chip__action-prefix {
   margin: 0 4px 0 0;
 }
@@ -363,9 +398,94 @@ dialog.mdl-dialog--polyfill {
   cursor: default;
 }
 
+.mdl-chips__wrapper .mdl-chip.mdl-chip--dense {
+  margin-right: 4px;
+}
+.mdl-chip {
+  box-sizing: content-box;
+}
+.mdl-chip.mdl-chip--dense {
+  height: 24px;
+  padding: 0 6px;
+  line-height: 22px;
+  font-size: 16px;
+  font-weight: 500;
+}
+.mdl-chip.mdl-chip--dense.mdl-chip--deletable {
+  padding-left: 10px;
+}
+.mdl-chip.mdl-chip--dense .mdl-chip__text {
+  font-size: 12px;
+}
+.mdl-chip.mdl-chip--dense .mdl-chip__action i {
+  font-size: 18px;
+  line-height: 24px;
+}
+.mdl-chip.mdl-chip--dense .mdl-chip__action .mdl-spinner {
+  width: 20px;
+  height: 20px;
+  margin: 2px 0;
+}
+.mdl-chip.mdl-chip--dense .mdl-chip__contact {
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.mdl-chip.mdl-chip--dense .mdl-chip__input {
+  height: 24px;
+}
+
+.mdl-chip.mdl-chip--xsmall {
+  height: 16px;
+  padding: 0 8px;
+  line-height: 16px;
+  font-size: 12px;
+}
+.mdl-chip.mdl-chip--xsmall .mdl-chip__text {
+  font-size: 11px;
+}
+.mdl-chip.mdl-chip--xsmall .mdl-chip__action i {
+  font-size: 13px;
+  line-height: 16px;
+}
+.mdl-chip.mdl-chip--xsmall .mdl-chip__action .mdl-spinner {
+  width: 20px;
+  height: 20px;
+  margin: 2px 0;
+}
+.mdl-chip.mdl-chip--xsmall .mdl-chip__contact {
+  width: 16px;
+  height: 16px;
+  line-height: 16px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.mdl-chip.mdl-chip--xsmall .mdl-chip__input {
+  height: 16px;
+}
+
+.mdl-chip.mdl-chip--outlined {
+  border: 1px dashed rgba(0, 0, 0, 0.87);
+}
+
+.mdl-chips__status {
+  position: absolute;
+  width: 100%;
+  height: 20px;
+  font-size: 12px;
+  line-height: 20px;
+  color: rgba(0, 0, 0, 0.87);
+}
+
 /*
  * Material Slider
  */
+.mdl-slider {
+  /* make width calculation important otherwise inline styles for input[type=range] overwrites with width = 100% */
+  width: calc(100% - 40px) !important;
+}
 .mdl-slider__wrapper {
   height: 30px;
 }
@@ -449,6 +569,9 @@ dialog.mdl-dialog--polyfill {
 .mdl-actionbar__item.mdl-switch {
   margin: 12px 8px;
 }
+.mdl-actionbar__item.mdl-actionbar__range {
+  margin: 15px -10px 15px -20px;
+}
 
 .mdl-actionbar__item select {
   height: 32px;
@@ -458,6 +581,10 @@ dialog.mdl-dialog--polyfill {
 .mdl-actionbar__item select:focus,
 .mdl-actionbar__item select:active {
   outline: 0 none;
+}
+.mdl-actionbar__item-select-button {
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 .mdl-actionbar__item-select-button .mdl-textfield {
   border-radius: 2px;
@@ -545,6 +672,15 @@ dialog.mdl-dialog--polyfill {
 .mdl-actionbar__more-select select {
   background: #FFFFFF;
 }
+.mdl-actionbar__more-select label + select {
+	float: right;
+}
+
+.mdl-actionbar__more-menu .mdl-menu__item {
+  display: flex;
+  justify-content: space-between;
+	padding-right: 0;
+}
 
 /*
    Color Themes
@@ -580,8 +716,11 @@ dialog.mdl-dialog--polyfill {
 .mdl-actionbar.mdl-actionbar--light .mdl-actionbar__group.mdl--right {
   border-left: 1px solid #CCC;
 }
+.mdl-actionbar.mdl-actionbar--light .mdl-select {
+  background-color: #FFF;
+}
 
-/* Dark Theme */
+  /* Dark Theme */
 .mdl-actionbar.mdl-actionbar--dark {
   background-color: rgba(32, 32, 32, 1);
 }
@@ -705,7 +844,7 @@ dialog.mdl-dialog--polyfill {
   pointer-events: none;
 }
 .mdl-select.mdl-select--notpadded .mdl-textfield {
-  padding: 4px 2px 0 8px; /* padding left as buttons in dropdown menu */
+  padding: 2px 2px 0 8px; /* padding left as buttons in dropdown menu */
 }
 
 .mdl-select__dropdown {
@@ -756,7 +895,7 @@ dialog.mdl-dialog--polyfill {
   user-select: none;
 }
 .mdl-select.mdl-select--notpadded .mdl-select__arrow {
-  top: 6px;
+  top: 4px;
 }
 .mdl-select.mdl-select--disabled .mdl-select__arrow {
   color: rgba(0, 0, 0, 0.3);
@@ -787,7 +926,7 @@ dialog.mdl-dialog--polyfill {
 .mdl-dropdown.is-visible {
   display: block;
   opacity: 1;
-  z-index: 999;
+  z-index: 9999;
 }
 .mdl-dropdown__items {
   padding: 0;
@@ -801,6 +940,9 @@ dialog.mdl-dialog--polyfill {
   width: 100%;
   text-align: left;
   text-transform: none;
+}
+.mdl-dropdown__items .mdl-button.is-active {
+  background-color: rgba(158, 158, 158, 0.4);
 }
 
 /*
@@ -884,17 +1026,6 @@ dialog.mdl-dialog--polyfill {
   display: block;
 }
 
-/* Material List Helper */
-.mdl-list__item.is-active {
-  background-color: #EEE;
-}
-.mdl-list__item-secondary-action .material-icons {
-  color: lightgray;
-}
-.mdl-list__item-secondary-action.mdl-list__item-secondary-action--highlighted .material-icons {
-  color: gold;
-}
-
 .material-belt-article-ribbon {
   width: 100%;
   height: 40vh;
@@ -934,6 +1065,7 @@ dialog.mdl-dialog--polyfill {
   padding: 40px 28px;
 }
 
+/* Material Table */
 .mdl-data-table--wrap {
   white-space: normal;
 }
@@ -969,6 +1101,23 @@ dialog.mdl-dialog--polyfill {
 .mdl-data-table .mdl-data-table__cell--icon-center .material-icons {
   vertical-align: middle;
 }
+.mdl-data-table .mdl-data-table__cell-color span {
+  display: block;
+  width: 16px;
+  height: 16px;
+}
+
+.mdl-data-table__fixed-header {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    width: calc(100% - 23px);
+    table-layout: fixed;
+}
+.mdl-data-table__fixed-header thead tr th {
+    vertical-align: top;
+}
 
 /* Material Drawer */
 /*
@@ -988,8 +1137,23 @@ dialog.mdl-dialog--polyfill {
   white-space: nowrap;
   text-overflow: ellipsis;
 }
+.mdl-drawer .mdl-list__item:hover {
+  background: #EEE;
+  outline: 0;
+}
+.mdl-drawer .mdl-list__item.is--active {
+  color: goldenrod;
+}
+.mdl-drawer .mdl-list__item.is--active .material-icons {
+  color: goldenrod;
+}
 
 /* Material Button */
+.mdl-button.mdl-button--icon.mdl-button--mini-icon .material-icons {
+  top: 50%;
+  left: 50%;
+  font-size: 18px;
+}
 .mdl-button__label {
   display: inline-block;
   line-height: 1;
@@ -1050,8 +1214,6 @@ dialog.mdl-dialog--polyfill {
   background-color: rgb(238, 238, 238);
   cursor: pointer;
 }
-.mdl-expansion-panels__collapsed {
-}
 .mdl-expansion-panels__collapsed-label {
   width: 120px;
   line-height: 48px;
@@ -1086,9 +1248,6 @@ dialog.mdl-dialog--polyfill {
   color: rgba(255, 255, 255, 0.60);
 }
 
-.mdl-expansion-panels__list-item {
-
-}
 .mdl-expansion-panels__list-item h2 {
   font-size: 16px;
   font-weight: 400;
