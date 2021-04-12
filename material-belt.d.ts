@@ -108,3 +108,16 @@ declare interface MaterialBelt {
 declare namespace MaterialBelt {
 
 }
+
+
+interface AnimateCssOptions {
+    animationName: string
+    animationSpeed?: 'slow' | 'slower' | 'fast' | 'faster' | ''
+    callback?: () => void
+}
+declare global {
+    interface JQuery {
+        animateCss(options: AnimateCssOptions): JQuery
+    }
+}
+

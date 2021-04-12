@@ -28,10 +28,10 @@
 /*jshint browser:true, jquery:true */
 /*global _, Mousetrap, MaterialLayout, componentHandler */
 ;(function($) {
-  'use strict';
+  'use strict'
 
   // TODO support require or module.export
-  console.assert(typeof window.material === 'undefined', 'Namespace window.material already defined!');
+  console.assert(typeof window.material === 'undefined', 'Namespace window.material already defined!')
 
   let KEYCODES_ACTIVE = false
 
@@ -86,7 +86,7 @@
     ),
     // params: label
     button: _.template('<button class="mdl-button mdl-js-button mdl-js-ripple-effect">' +
-        '<%= label %>' +
+        '<span class="mdl-button__label"><%= label %></span>' +
       '</button>'
     ),
     // params: icon
@@ -159,6 +159,14 @@
       '</span>' +
       '</li>'
     ),
+    listItemIconDetail: _.template('<li class="mdl-list__item">' +
+      '<span class="mdl-list__item-primary-hint-avatar">' +
+        '<i class="material-icons mdl-list__item-icon"><%= avatar %></i>' +
+      '</span>' +
+      '<span class="mdl-list__item-primary-hint-content"><%= title %></span>' +
+      '<span class="mdl-list__item-primary-hint"><%= hint %></span>' +
+      '</li>'
+    ),
     // params: avatar (material icons), title, body, action (material icons)
     listItemTwoLine: _.template('<li class="mdl-list__item mdl-list__item--two-line">' +
       '<span class="mdl-list__item-primary-content">' +
@@ -184,6 +192,44 @@
       '</span>' +
       '</li>'
     ),
+    // params: avatar (material icons), title, body, action (material icons)
+    listItemThree: _.template('<li class="mdl-list__item mdl-list__item--three-line">' +
+      '<span class="mdl-list__item-primary-content">' +
+        '<i class="material-icons mdl-list__item-avatar"><%= avatar %></i>' +
+        '<span><%= title %></span>' +
+        '<span class="mdl-list__item-text-body"><%= body %></span>' +
+      '</span>' +
+      '<span class="mdl-list__item-secondary-content">' +
+        '<a class="mdl-list__item-secondary-action" href="//"><i class="material-icons"><%= action %></i></a>' +
+      '</span>' +
+      '</li>'
+    ),
+    // params: avatar, title, id, checked
+    listItemCheckbox: _.template('<li class="mdl-list__item">' +
+      '<span class="mdl-list__item-primary-content">' +
+        '<i class="material-icons mdl-list__item-avatar hidden"><%= avatar %></i>' +
+        '<%= title %>' +
+      '</span>' +
+      '<span class="mdl-list__item-secondary-action">' +
+        '<label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="<%= id %>">' +
+          '<input type="checkbox" id="<%= id %>" class="mdl-checkbox__input" <%= checked %>>' +
+        '</label>' +
+      '</span>' +
+      '</li>'
+    ),
+    // params: avatar, title, id, name, value, checked
+    listItemRadio: _.template('<li class="mdl-list__item">' +
+      '<span class="mdl-list__item-primary-content">' +
+        '<i class="material-icons mdl-list__item-avatar hidden"><%= avatar %></i>' +
+        '<%= title %>' +
+      '</span>' +
+      '<span class="mdl-list__item-secondary-action">' +
+        '<label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="<%= id %>">' +
+          '<input type="radio" id="<%= id %>" class="mdl-radio__button" name="<%= name %>" value="<%= value %>" <%= checked %>>' +
+        '</label>' +
+      '</span>' +
+      '</li>'
+    ),
     // params: title, action
     card: _.template('<div class="mdl-card mdl-shadow--2dp">' +
       '<div class="mdl-card__title mdl-card--expand">' +
@@ -201,7 +247,7 @@
       '<div class="mdl-dialog__content" style="overflow:hidden">' +
         '<p><%= content %></p>' +
       '</div>' +
-      '<div class="mdl-dialog__actions hidden">' +
+      '<div class="mdl-dialog__actions mdl-dialog--border hidden">' +
         '<button type="button" class="mdl-button mdl-js-button mdl-js-ripple-effect hidden" data-name="agree"><%= agree %></button>' +
         '<button type="button" class="mdl-button mdl-js-button mdl-js-ripple-effect hidden" data-name="disagree"><%= disagree %></button>' +
       '</div>' +
@@ -219,11 +265,11 @@
       '<h4 data-lang="title"><%= title %></h4>' +
       '<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">' +
         '<input class="mdl-login__login mdl-textfield__input" type="text" id="mdl-login__login">' +
-        '<label class="mdl-textfield__label" for="login" data-lang="login"><%= login %></label>' +
+        '<label class="mdl-textfield__label" for="mdl-login__login" data-lang="login"><%= login %></label>' +
       '</div>' +
       '<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">' +
         '<input class="mdl-login__password mdl-textfield__input" type="password" id="mdl-login__password">' +
-        '<label class="mdl-textfield__label" for="password" data-lang="password"><%= password %></label>' +
+        '<label class="mdl-textfield__label" for="mdl-login__password" data-lang="password"><%= password %></label>' +
         '<span class="mdl-textfield__error" data-lang="password-incorrect">Password is incorrect.</span>' +
       '</div>' +
       '<div class="mdl-login__options">' +
@@ -304,7 +350,7 @@
       '<div class="material-belt-article-ribbon"></div>' +
       '<main class="material-belt-article-main mdl-layout__content">' +
         '<div class="material-belt-article-container mdl-grid">' +
-          '<div class="mdl-cell mdl-cell--2-col mdl-cell--hide-tablet mdl-cell--hide-phone"></div>' +
+          '<div class="material-belt-article-sidebar mdl-cell mdl-cell--2-col mdl-cell--1-offset mdl-cell--hide-tablet mdl-cell--hide-phone mdl-color--white mdl-shadow--4dp mdl-color-text--grey-800"></div>' +
           '<div class="material-belt-article-content mdl-color--white mdl-shadow--4dp mdl-color-text--grey-800 mdl-cell mdl-cell--8-col">' +
           '</div>' +
         '</div>' +
@@ -417,6 +463,7 @@
       disagree: 'Disagree',
       submitOnReturn: false,
       closeOnEsc: false,
+      actionBorder: true,
       timeout: 0,
       on: {
         agree: $.noop,
@@ -748,7 +795,7 @@
         });
       }
     }
-  };
+  }
 
   /**
    * Class Login
@@ -767,7 +814,7 @@
 
   Login.prototype.getDialog = function() {
     return this.dom.$dlg;
-  };
+  }
 
   // "content", "background", callback()
   // "content", css:{}, callback()
@@ -805,19 +852,19 @@
 
     // start animation only if background or content changed
     if (background || content) {
-      $header.animateCss(lgn.classOut, function() {
+      $header.animateCss({animationName: lgn.classOut, animationSpeed: 'fast', callback: function() {
         var lastHeight = $header.outerHeight(true);
         $header.css('min-height', lastHeight);
         _.isObject(headerCss) && $header.css(headerCss);
         _.isString(background) && $header.css('background', background);
         _.isString(content) && $header.empty().append(content);
-        $header.animateCss(lgn.classIn, callback);
-      });
+        $header.animateCss({animationName: lgn.classIn, animationSpeed: 'fast', callback})
+      }});
     }
     else {
       _.isFunction(callback) && callback();
     }
-  };
+  }
   // "langKey" like "de", "en", "ja"
   Login.prototype.setLanguage = function() {
     var
@@ -850,7 +897,7 @@
     lgn.dom.$languagesMenu.find('.mdl-menu__item').each(function() {
       $(this).find('.material-icons').text(this.id === lang ? 'radio_button_checked' : 'radio_button_unchecked');
     });
-  };
+  }
 
   Login.prototype.setMessage = function() {
     var
@@ -860,8 +907,8 @@
       $msg = lgn.dom.$message;
 
     $msg.text(msg);
-    msg ? $msg.parent().show().animateCss('bounceIn') : $msg.parent().hide();
-  };
+    msg ? $msg.parent().show().animateCss({animationName: 'bounceIn'}) : $msg.parent().hide();
+  }
 
   // ========================================
   //   Defining underscore.material
@@ -1101,9 +1148,9 @@
         }, 1000);
 
         if (params.animate) {
-          $dlg.animateCss('bounce');
+          $dlg.animateCss({animationName: 'bounce'});
           _.delay(function() {
-            oLogin.$footer && oLogin.$footer.children().first().animateCss('tada');
+            oLogin.$footer && oLogin.$footer.children().first().animateCss({animationName: 'tada'});
           }, 2000);
         }
         _.isFunction(params.on.ready) && params.on.ready();
@@ -2061,17 +2108,15 @@
 
       // append right icon and wrap label
       if (params.iconRight) {
-        $btn.text('');
-        $btn.prepend($('<span class="mdl-button__label"/>').text(params.label));
         if (params.iconRight !== 'spinner') {
-          $iconRight = $(TEMPLATES.icon({ icon: params.iconRight })).addClass('mdl-button__icon-right');
+          $iconRight = $(TEMPLATES.icon({ icon: params.iconRight })).addClass('mdl-button__icon-right')
         }
         else {
-          $btn.find('.mdl-button__label').css('paddingRight', 10);
-          $iconRight = window.material.spinner({ single: true, active: true }).addClass('mdl-button__icon-right');
+          $btn.find('.mdl-button__label').css('paddingRight', 10)
+          $iconRight = window.material.spinner({ single: true, active: true }).addClass('mdl-button__icon-right')
           // $iconRight = window.material.progress({indeterminate:true}).width(120).height(2).css('top', '-2px')
         }
-        $btn.append($iconRight);
+        $btn.append($iconRight)
       }
       if (params.iconLeft) {
         $iconLeft = $(TEMPLATES.icon({ icon: params.iconLeft })).addClass('mdl-button__icon-left');
@@ -2380,356 +2425,380 @@
      *
      * @param {Object} params
      * @param {string} params.title - menu title
-     * @param {(number|string)} params.width - drawer width
-     * @param {boolean} params.overlay - show overlay or not
-     * @param {array} params.list - menu items
-     * @param {array} params.groups - grouped menu items
-     * @param {boolean} params.open - start with open drawer
-     * @param {boolean} params.mini - start with mini drawer
-     * @param {(array|boolean)} params.breakpoints - set automatic view mode on resize
+     * @param {(number|string)?} params.width - drawer width
+     * @param {boolean?} params.overlay - show overlay or not
+     * @param {array?} params.list - menu items
+     * @param {array?} params.groups - grouped menu items
+     * @param {boolean?} params.open - start with open drawer
+     * @param {boolean?} params.mini - start with mini drawer
+     * @param {(array|boolean)?} params.breakpoints - set automatic view mode on resize
      * @param {*} params.trigger - element to trigger open state
-     * @param {string} params.keyCode - mousetrap to toggle open state
-     * @param {Object} params.on - callback methods
-     * @param {Function} params.on.breakpoint - callback on breakpoint change
+     * @param {string?} params.keyCode - mousetrap to toggle open state
+     * @param {Object?} params.on - callback methods
+     * @param {Function?} params.on.breakpoint - callback on breakpoint change
      * @param {Function} params.on.select - callback on select item
      * @param {Function} params.on.action - callback on select item action
      * @param {Function} params.on.open - callback on open drawer
      * @param {Function} params.on.close - callback on close drawer
-     * @param {boolean} params.toggle - prepend a drawer mode toggle group
-     * @param {(boolean|Object)} params.search - append input to drawer title for search operations
-     * @param {string} params.search.placeholder - set placeholder text for search input
-     * @param {Object=} params.offset - define drawer offset
-     * @param {Number=} params.offset.top - offset top
-     * @param {Number=} params.offset.bottom - offset bottom
-     * @param {boolean} params.right - create drawer on right side
-     * @param {string} params.class - class names to add
-     * @param {Object} params.defaultwidth?
-     * @param {Number} params.defaultwidth.mini? - drawer width in mini mode
-     * @param {Number} params.defaultwidth.fixed? - drawer width in fixed mode
-     * @return {jQuery}
+     * @param {boolean?} params.toggle - prepend a drawer mode toggle group
+     * @param {(boolean|Object)?} params.search - append input to drawer title for search operations
+     * @param {string?} params.search.placeholder - set placeholder text for search input
+     * @param {Object?} params.offset - define drawer offset
+     * @param {Number?} params.offset.top - offset top
+     * @param {Number?} params.offset.bottom - offset bottom
+     * @param {boolean?} params.right - create drawer on right side
+     * @param {boolean?} params.tooltip - show tooltip
+     * @param {boolean?} params.fixed - create fixed drawer
+     * @param {string?} params.class - class names to add
+     * @param {Object?} params.defaultwidth?
+     * @param {Number?} params.defaultwidth.mini? - drawer width in mini mode
+     * @param {Number?} params.defaultwidth.fixed? - drawer width in fixed mode
+     * @return {Object}
      */
     drawer: function(params){
-      params = $.extend({}, DEFAULTS.drawer, params)
+        params = $.extend({}, DEFAULTS.drawer, params)
 
-      $(TEMPLATES.drawer(params)).appendTo('body')
+        $(TEMPLATES.drawer(params)).appendTo('body')
 
-      const $drawer = $('.mdl-drawer').addClass(params.class)
-      const $overlay = $('.mdl-drawer-overlay')
-      const dheight = params.offset.top === 0 && params.offset.bottom === 0
-          ? '100%'
-          : 'calc(100% - ' + (params.offset.top + params.offset.bottom) + 'px)'
-      const width = params.mini ? params.defaultwidth.mini : params.width || params.defaultwidth.fixed
-      const tx = params.right ? width : -width
+        const $drawer = $('.mdl-drawer').addClass(params.class)
+        const $overlay = $('.mdl-drawer-overlay')
+        const dheight = params.offset.top === 0 && params.offset.bottom === 0
+            ? '100%'
+            : 'calc(100% - ' + (params.offset.top + params.offset.bottom) + 'px)'
+        const width = params.mini ? params.defaultwidth.mini : params.width || params.defaultwidth.fixed
+        const tx = params.right ? width : -width
 
-      let drawerMode
-      let cbp
+        let drawerMode
+        let cbp
 
-      $drawer.css({
-        position: 'fixed',
-        top: params.offset.top,
-        bottom: params.offset.bottom,
-        width,
-        height: dheight,
-        transform: `translateX(${tx}px)`
-      })
-
-      const $menu = $(TEMPLATES.list()).appendTo($drawer)
-
-      if (params.search) {
-        var $search = $('<div class="mdl-layout-search"/>').css({ padding: '8px 16px 0' });
-        $drawer.find('.mdl-layout-title').after($search);
-        window.material.textfield({
-          appendTo: $search,
-          label: params.search.placeholder || 'Durchsuche Einträge...',
-          width: '100%',
-          on: {
-            key: function(term) {
-              searchList(term);
-            },
-            value: function(term) {
-              searchList(term);
-            }
-          }
-        });
-      }
-
-      // prepend drawer toggle group
-      if (params.toggle) {
-        params.groups.unshift({
-          list: [{
-            id: 'drawer-toggle',
-            avatar: 'keyboard_arrow_right',
-            title: 'Full drawer',
-            callback: function () {
-              const mode = $drawer.data('mode');
-              if (mode === 'fixed') toggleMode('mini');
-              if (mode === 'mini') toggleMode('fixed');
-            }
-          }]
-        });
-      }
-
-      if (_.size(params.groups)) {
-        _.each(params.groups, function(gr) {
-          $menu.append($('<h3/>').addClass('mdl-list__header').text(gr.title));
-          addList(gr.list);
-        });
-      }
-      if (_.size(params.list)) {
-        addList(params.list);
-      }
-
-      $menu.find('.mdl-list__item').attr('tabindex', '-1').css({
-        cursor: 'pointer'
-      })
-
-      if (params.keyCode && _.isObject(window.Mousetrap)) {
-        FN.register_keycode(params.keyCode, params.keyCodeDescr);
-        Mousetrap.bind(params.keyCode, toggleDrawer);
-      }
-
-      $(params.trigger).on('click', toggleDrawer)
-      $overlay.on('click', function() {
-        closeDrawer()
-      })
-
-      $menu
-        .on('click.mdl-drawer', '.mdl-list__item', function() {
-          var action = $(this).data('action');
-          if (_.isFunction(params.on.select)) {
-            params.on.select(action);
-            return false;
-          }
-          _.isFunction(action.callback) ? action.callback() : _.open(action);
+        $drawer.css({
+            position: 'fixed',
+            top: params.offset.top,
+            bottom: params.offset.bottom,
+            width,
+            height: dheight,
+            transform: `translateX(${tx}px)`
         })
-        .on('click.mdl-drawer', '.mdl-list__item-secondary-action', function() {
-          var action = $(this).closest('.mdl-list__item').data('action');
-          if (_.isFunction(params.on.action)) {
-            params.on.action.call(this, action);
-            return false;
-          }
-          _.isFunction(action.callback) ? action.callback() : _.open(action);
-        });
+        if (params.right) $drawer.css({right: 0, left: 'unset'})
 
-      if (params.breakpoints) {
-        $(window).resize(_.debounce(resizeHandler, 600));
-        resizeHandler();
-      }
+        const $menu = $(TEMPLATES.list()).appendTo($drawer)
 
-      params.open && openDrawer()
+        if (params.search) {
+            const $search = $('<div class="mdl-layout-search"/>')
+            $drawer.find('.mdl-layout-title').after($search)
+            window.material.textfield({
+                appendTo: $search,
+                label: params.search.placeholder || 'Durchsuche Einträge...',
+                width: '100%',
+                on: {
+                    key: searchList,
+                    value: searchList
+                }
+            })
+        }
 
-      return $drawer
-
-      function addList(list) {
-        let $item
-        let itemId
-        _.each(list, function(li, i) {
-          itemId = li.id || _.uniqueId('mdl-list-item-')
-					li.action = li.action || ''
-					li.subtitle = li.subtitle || ''
-          if (li.subtitle) {
-            // params: avatar (material icons), title, body, subtitle, action (material icons)
-            $item = $(TEMPLATES.listItemThreeLine(li)).data('action', li);
-          }
-          else if (li.body) {
-            // params: avatar (material icons), title, body, action (material icons)
-            $item = $(TEMPLATES.listItemTwoLine(li)).data('action', li);
-          }
-          else {
-            // params: avatar, title
-            $item = $(TEMPLATES.listItemIconSingle(li)).data('action', li);
-          }
-          $item.attr('id', itemId)
-          if (li.cls) $item.addClass(li.cls)
-          // if (!li.action) $item.find('.mdl-list__item-secondary-content').remove();
-          if (li.color) {
-            $item.find('.mdl-list__item-avatar').css({ backgroundColor: li.backgroundColor, color: li.color });
-          }
-          li.active && $item.addClass('is-active')
-          if (i === list.length - 1 || li.divider) $item.addClass('mdl-menu__item--full-bleed-divider')
-					if (li.badge) {
-						$item.find('.mdl-list__item-avatar.material-icons').addClass('mdl-badge').attr('data-badge', li.badge);
-					}
-          $menu.append($item)
-					if (li.body) {
-            window.material.tooltip({
-              id: itemId,
-              title: li.title + ': ' + li.body,
-              cls: 'mdl-tooltip--right'
+        // prepend drawer toggle group
+        if (params.toggle) {
+            params.groups.unshift({
+                list: [{
+                    id: 'drawer-toggle',
+                    avatar: 'keyboard_arrow_right',
+                    title: 'Full drawer',
+                    callback: function () {
+                        const mode = $drawer.data('mode');
+                        if (mode === 'fixed') toggleMode('mini');
+                        if (mode === 'mini') toggleMode('fixed');
+                    }
+                }]
             });
-          }
+        }
+
+        if (_.size(params.groups)) addGroups(params.groups)
+        if (_.size(params.list)) addList(params.list)
+
+        $menu.find('.mdl-list__item').attr('tabindex', '-1').css({
+            cursor: 'pointer'
         })
-      }
 
-      // open drawer and handle events (key navigation, click to outside to close)
-      function openDrawer() {
-        if ($drawer.is('.is-visible')) return false
+        if (params.keyCode && _.isObject(window.Mousetrap)) {
+            FN.register_keycode(params.keyCode, params.keyCodeDescr);
+            window.Mousetrap.bind(params.keyCode, toggleDrawer);
+        }
 
-        const $items = $menu.find('.mdl-list__item')
-        let curli = 0
+        $(params.trigger).on('click', toggleDrawer)
+        $overlay.on('click', function () {
+            closeDrawer()
+        })
 
-        setDrawerToggle()
-        params.overlay && $overlay.addClass('is-visible')
-        $drawer
-          .css('transform', 'translateX(0)')
-          .addClass('is-visible')
+        $menu
+            .on('click.mdl-drawer', '.mdl-list__item', function () {
+                const action = $(this).data('action')
+                if (_.isFunction(params.on.select)) {
+                    params.on.select(action)
+                    return false
+                }
+                _.isFunction(action.callback) ? action.callback() : _.open(action)
+            })
+            .on('click.mdl-drawer', '.mdl-list__item-secondary-action', function () {
+                const action = $(this).closest('.mdl-list__item').data('action')
+                if (_.isFunction(params.on.action)) {
+                    params.on.action.call(this, action)
+                    return false
+                }
+                _.isFunction(action.callback) ? action.callback() : _.open(action)
+            })
 
-        // $items.eq(curli).trigger('focus');
+        if (params.breakpoints) {
+            $(window).resize(_.debounce(resizeHandler, 600));
+            resizeHandler();
+        }
 
-        $(document)
-          .on('click.mdl-drawer', function() {
-            // all other modes stays open
-            drawerMode === 'hide' && closeDrawer();
-          })
+        params.open && openDrawer()
 
-        $drawer
-          // TODO use keydown events only when focus is in drawer
-          .on('keydown.mdl-drawer', function(event) {
-            (event.key === 'Escape') && closeDrawer()
-            if (event.key === 'ArrowDown') {
-              if (curli < $items.length) {
-                $items.eq(++curli).trigger('focus')
-              }
+        return {
+            $drawer,
+            groups: addGroups,
+            list: addList,
+            open: openDrawer,
+            close: closeDrawer
+        }
+
+        function addGroups(groups, header) {
+            $menu.empty()
+            if (header) $menu.append($('<h2/>').addClass('mdl-list__group-header').text(header))
+            _.each(groups, function (gr) {
+                $menu.append($('<h3/>').addClass('mdl-list__header').text(gr.title))
+                addList(gr.list)
+            })
+        }
+        function addList(list) {
+            let $item
+            let itemId
+            _.each(list, function (li, i) {
+                itemId = li.id || _.uniqueId('mdl-list-item-')
+                li.action = li.action || ''
+                li.subtitle = li.subtitle || ''
+                if (li.subtitle) {
+                    // params: avatar (material icons), title, body, subtitle, action (material icons)
+                    $item = $(TEMPLATES.listItemThreeLine(li)).data('action', li);
+                }
+                else if (li.body) {
+                    // params: avatar (material icons), title, body, action (material icons)
+                    $item = $(TEMPLATES.listItemTwoLine(li)).data('action', li);
+                }
+                else {
+                    // params: avatar, title
+                    $item = $(TEMPLATES.listItemIconSingle(li)).data('action', li);
+                }
+                $item.attr('id', itemId)
+                if (li.cls) $item.addClass(li.cls)
+                // if (!li.action) $item.find('.mdl-list__item-secondary-content').remove();
+                if (li.color) {
+                    $item.find('.mdl-list__item-avatar').css({backgroundColor: li.backgroundColor, color: li.color});
+                }
+                li.active && $item.addClass('is-active')
+                if (i === list.length - 1 || li.divider) $item.addClass('mdl-menu__item--full-bleed-divider')
+                if (li.badge) {
+                    $item.find('.mdl-list__item-avatar.material-icons').addClass('mdl-badge').attr('data-badge', li.badge);
+                }
+                $menu.append($item)
+                if (params.tooltip && li.body) {
+                    window.material.tooltip({
+                        id: itemId,
+                        title: li.title + ': ' + li.body,
+                        cls: 'mdl-tooltip--right'
+                    })
+                }
+            })
+        }
+
+        // open drawer and handle events (key navigation, click to outside to close)
+        function openDrawer() {
+            if ($drawer.is('.is-visible')) return false
+
+            const $items = $menu.find('.mdl-list__item')
+            let curli = 0
+
+            setDrawerToggle()
+
+            // TODO create param for content container
+            //  create param for min-width
+            const $layoutContent = $('.mdl-layout__content')
+            if (params.fixed && params.right && $layoutContent.width() > 1600) {
+                $layoutContent.css({marginRight: width})
             }
-            else if (event.key === 'ArrowUp') {
-              if (curli > 0) {
-                $items.eq(--curli).focus()
-              }
+            // show overlay only when drawer is not fixed
+            else {
+                params.overlay && $overlay.addClass('is-visible')
             }
-            else if (event.key === 'Enter') {
-              $items.eq(curli).trigger('click')
+            $drawer.css('transform', 'translateX(0)').addClass('is-visible')
+
+            // $items.eq(curli).trigger('focus');
+
+            $(document).on('click.mdl-drawer', function () {
+                // all other modes stays open
+                drawerMode === 'hide' && closeDrawer();
+            })
+
+            // TODO use keydown events only when focus is in drawer
+            $drawer.on('keydown.mdl-drawer', function (event) {
+                (event.key === 'Escape') && closeDrawer()
+                if (event.key === 'ArrowDown') {
+                    if (curli < $items.length) {
+                        $items.eq(++curli).trigger('focus')
+                    }
+                }
+                else if (event.key === 'ArrowUp') {
+                    if (curli > 0) {
+                        $items.eq(--curli).focus()
+                    }
+                }
+                else if (event.key === 'Enter') {
+                    $items.eq(curli).trigger('click')
+                }
+            })
+
+            if (params.on.open) params.on.open()
+
+            return false
+        }
+
+        function closeDrawer(event) {
+            if (!$drawer.is('.is-visible')) return false
+
+            // close by event
+            if (event) {
+                // TODO is list item clicked?
+                if ($(event.target).is('.mdl-list__item') || $(event.target).parents('.mdl-list__item').length) {
+                    return;
+                }
+
+                if ($drawer.find(event.target).length || event.target === $drawer.get(0)) {
+                    return;
+                }// clicked inside drawer
             }
-          })
 
-        if (params.on.open) params.on.open()
+            $(document).off('.mdl-drawer')
+            if (params.fixed) {
+                $('.mdl-layout__content').css({marginRight: 0})
+            }
+            $drawer
+                .off('.mdl-drawer')
+                .css('transform', `translateX(${tx}px)`)
+                .removeClass('is-visible')
+            $overlay.removeClass('is-visible')
+            setDrawerToggle()
 
-        return false
-      }
-      function closeDrawer(event) {
-        if (!$drawer.is('.is-visible')) return false;
+            if (params.on.close) params.on.close()
 
-        // close by event
-        if (event) {
-          // TODO is list item clicked?
-          if ($(event.target).is('.mdl-list__item') || $(event.target).parents('.mdl-list__item').length) {
-            return;
-          }
-
-          if ($drawer.find(event.target).length || event.target === $drawer.get(0)) {
-            return;
-          }// clicked inside drawer
+            return false
         }
 
-        $(document).off('.mdl-drawer');
-        $drawer
-          .off('.mdl-drawer')
-          .css('transform', !params.right ? 'translateX(-330px)' : 'translateX(330px)')
-          .removeClass('is-visible');
-        $overlay.removeClass('is-visible');
-        setDrawerToggle();
-
-        if (params.on.close) params.on.close();
-
-        return false;
-      }
-      function toggleDrawer() {
-        $drawer.is('.is-visible') ? closeDrawer() : openDrawer();
-        return false;
-      }
-
-      function toggleMode(mode) {
-        const currentMode = $drawer.attr('data-mode');
-        if (currentMode === mode) return;
-
-        drawerMode = mode;
-        $drawer.attr('data-mode', mode);
-        if (mode === 'mini') {
-          $drawer.find('.mdl-layout-search').hide();
-          $menu.find('.mdl-list__header').hide();
-          $menu.find('.mdl-list__item-primary-content > span').hide();
-          $menu.find('.mdl-list__item-secondary-content').hide();
-          $drawer.css({
-            width: params.width.mini,
-            transform: 'translateX(-90px)'
-          });
-          closeDrawer();
-          openDrawer();
-        }
-        else if (mode === 'fixed') {
-          $drawer.find('.mdl-layout-search').show();
-          $menu.find('.mdl-list__header').show();
-          $menu.find('.mdl-list__item-primary-content > span').show();
-          $menu.find('.mdl-list__item-secondary-content').show();
-          $drawer.css({
-            width: params.width.fixed,
-            transform: 'translateX(-266px)'
-          });
-          closeDrawer();
-          openDrawer();
-        }
-        else if (mode === 'maxi') {
-          $drawer.find('.mdl-layout-search').show();
-          $menu.find('.mdl-list__header').show();
-          $menu.find('.mdl-list__item-primary-content > span').show();
-          $menu.find('.mdl-list__item-secondary-content').show();
-          $drawer.css({
-            width: params.width.maxi,
-            transform: 'translateX(-330px)'
-          });
-          closeDrawer();
-          openDrawer();
-        }
-        else if (mode === 'hide') {
-          closeDrawer();
-        }
-      }
-
-      function setDrawerToggle() {
-        const mode = $drawer.data('mode');
-        const $toggle = $drawer.find('#drawer-toggle');
-        const icon = mode !== 'fixed' ? 'keyboard_arrow_left' : 'keyboard_arrow_right';
-        const hint = mode !== 'fixed' ? 'Full Drawer' : 'Mini Drawer';
-
-        // $toggle.find('.mdl-list__item-avatar.material-icons').text(icon);
-        // $toggle.find('.mdl-list__item-primary-content').text(hint);
-      }
-
-      function resizeHandler() {
-        const width = window.innerWidth;
-        const bp = _.find(params.breakpoints, function(b) { return width > b; });
-        if (_.isFunction(params.on.breakpoint)) {
-          params.on.breakpoint(bp, cbp, params, function(mode) {
-            toggleMode(mode);
-          });
-        }
-        else {
-          if (width > params.breakpoints[0]) {
-            toggleMode('maxi');
-          } else if (width > params.breakpoints[1]) {
-            toggleMode('fixed');
-          } else if (width > params.breakpoints[2]) {
-            toggleMode('mini');
-          } else {
-            toggleMode('hide');
-          }
-        }
-        cbp = bp;
-      }
-
-      function searchList(term) {
-        var $items = $menu.find('.mdl-list__item');
-        if (!term) {
-          $items.show();
-          return;
+        function toggleDrawer() {
+            $drawer.is('.is-visible') ? closeDrawer() : openDrawer();
+            return false;
         }
 
-        var action, stext;
-        $items.each(function() {
-          action = $(this).data('action');
-          stext = (action.title + action.body).toLowerCase();
-          stext.indexOf(term) === -1 ? $(this).hide() : $(this).show();
-        });
-      }
+        function toggleMode(mode) {
+            const currentMode = $drawer.attr('data-mode');
+            if (currentMode === mode) return;
+
+            drawerMode = mode;
+            $drawer.attr('data-mode', mode);
+            if (mode === 'mini') {
+                $drawer.find('.mdl-layout-search').hide();
+                $menu.find('.mdl-list__header').hide();
+                $menu.find('.mdl-list__item-primary-content > span').hide();
+                $menu.find('.mdl-list__item-secondary-content').hide();
+                $drawer.css({
+                    width: params.width.mini,
+                    transform: 'translateX(-90px)'
+                });
+                closeDrawer();
+                openDrawer();
+            }
+            else if (mode === 'fixed') {
+                $drawer.find('.mdl-layout-search').show();
+                $menu.find('.mdl-list__header').show();
+                $menu.find('.mdl-list__item-primary-content > span').show();
+                $menu.find('.mdl-list__item-secondary-content').show();
+                $drawer.css({
+                    width: params.width.fixed,
+                    transform: 'translateX(-266px)'
+                });
+                closeDrawer();
+                openDrawer();
+            }
+            else if (mode === 'maxi') {
+                $drawer.find('.mdl-layout-search').show();
+                $menu.find('.mdl-list__header').show();
+                $menu.find('.mdl-list__item-primary-content > span').show();
+                $menu.find('.mdl-list__item-secondary-content').show();
+                $drawer.css({
+                    width: params.width.maxi,
+                    transform: 'translateX(-330px)'
+                });
+                closeDrawer();
+                openDrawer();
+            }
+            else if (mode === 'hide') {
+                closeDrawer();
+            }
+        }
+
+        function setDrawerToggle() {
+            const mode = $drawer.data('mode');
+            const $toggle = $drawer.find('#drawer-toggle');
+            const icon = mode !== 'fixed' ? 'keyboard_arrow_left' : 'keyboard_arrow_right';
+            const hint = mode !== 'fixed' ? 'Full Drawer' : 'Mini Drawer';
+
+            // $toggle.find('.mdl-list__item-avatar.material-icons').text(icon);
+            // $toggle.find('.mdl-list__item-primary-content').text(hint);
+        }
+
+        function resizeHandler() {
+            const width = window.innerWidth
+            const bp = _.find(params.breakpoints, function (b) {
+                return width > b
+            })
+            if (_.isFunction(params.on.breakpoint)) {
+                params.on.breakpoint(bp, cbp, params, function (mode) {
+                    toggleMode(mode)
+                })
+            }
+            else {
+                if (width > params.breakpoints[0]) {
+                    toggleMode('maxi')
+                }
+                else if (width > params.breakpoints[1]) {
+                    toggleMode('fixed')
+                }
+                else if (width > params.breakpoints[2]) {
+                    toggleMode('mini')
+                }
+                else {
+                    toggleMode('hide')
+                }
+            }
+            cbp = bp
+        }
+
+        function searchList(term) {
+            const $items = $menu.find('.mdl-list__item')
+            if (!term) {
+                $items.show()
+                return
+            }
+
+            let action
+            let stext
+            $items.each(function () {
+                action = $(this).data('action')
+                stext = (action.title + action.body).toLowerCase()
+                stext.indexOf(term) === -1 ? $(this).hide() : $(this).show()
+            })
+            // TODO hide empty groups
+        }
     },
 
     /**
@@ -2848,32 +2917,51 @@
 
     /**
      * Create Material Lists.
-     * @param params
+     * @param {Object?} params
+     * @param {(String|HTMLElement|JQuery)} params.appendTo
+     * @param {(String|HTMLElement|JQuery)} params.prependTo
+     * @param {Boolean} params.singleLine
+     * @param {Boolean} params.singleCheckbox
+     * @param {Boolean} params.singleRadio
+     * @param {Boolean} params.threeLine
+     * @param {Number} params.lines
+     * @param {Array} params.items
      * @returns {*|HTMLElement}
      */
     list: function(params){
-      params = $.extend({}, DEFAULTS.list, params)
-      const $list = $(TEMPLATES.list())
-      let $item
+        params = $.extend({}, DEFAULTS.list, params)
+        const $list = $(TEMPLATES.list())
+        let $item
 
-      // singleline params [{ title, avatar }]
-      // twoline    params [{ title, avatar, body, action }]
-      // threeline  params [{ title, avatar, body, action, subtitle }]
-      let itemTemplate = 'listItemTwoLine'
-      if (params.singleLine) itemTemplate = 'listItemIconSingle'
-      if (params.lines === 3) itemTemplate = 'listItemThreeLine'
-      _.each(params.items, function(li) {
-        $list.append(
-          $item = $(TEMPLATES[itemTemplate](li)).data('item', li)
-        )
-        if (typeof li.action !== 'undefined') $item.attr('data-action', li.action)
-      })
-      //$list.find('.mdl-list__item-secondary-action').eq(1).addClass('mdl-list__item-secondary-action--highlighted');
+        // singleline      params [{ title, avatar }]
+        // twoline         params [{ title, avatar, body, action }]
+        // threeline       params [{ title, avatar, body, action, subtitle }]
+        // singleCheckbox  params [{ title, id, avatar, checked }]
+        // singleRadio     params [{ title, id, avatar, name, value, checked }]
+        let itemTemplate = 'listItemTwoLine'
+        if (params.singleLine) itemTemplate = 'listItemIconSingle'
+        if (params.lines === 3) itemTemplate = 'listItemThreeLine'
+        if (params.threeLine) itemTemplate = 'listItemThree'
+        if (params.singleCheckbox) itemTemplate = 'listItemCheckbox'
+        if (params.singleRadio) itemTemplate = 'listItemRadio'
+        _.each(params.items, function (li) {
+            li.avatar = li.avatar || ''
+            li.action = li.action || ''
+            if (li.checked) li.checked = 'checked' // force attribute string for checked
+            else li.checked = ''
+            $list.append(
+                $item = $(TEMPLATES[itemTemplate](li)).data('item', li)
+            )
+            if (typeof li.action !== 'undefined' && li.action) $item.attr('data-action', li.action)
+            if (li.action) $item.find('.mdl-list__item-secondary-action').removeClass('hidden')
+            if (li.disabled) $item.find('input').prop('disabled', true)
+        })
+        //$list.find('.mdl-list__item-secondary-action').eq(1).addClass('mdl-list__item-secondary-action--highlighted');
 
-      params.appendTo && $list.appendTo(params.appendTo)
-      params.prependTo && $list.prependTo(params.prependTo)
+        params.appendTo && $list.appendTo(params.appendTo)
+        params.prependTo && $list.prependTo(params.prependTo)
 
-      return $list
+        return $list
     },
 
     /**
@@ -2951,6 +3039,7 @@
      * @param {Number} params.fullwidth
      * @param {Boolean} params.submitOnReturn
      * @param {Boolean} params.closeOnEsc
+     * @param {Boolean} params.actionBorder - set border top for dialog actions
      * @param {Object} params.on
      * @param {Function} params.on.agree - callback on click agree
      * @param {Function} params.on.disagree - callback on click disagree
@@ -3002,8 +3091,9 @@
           .append(params.$content)
           .removeClass('hidden');
       }
+      const $actions = $dlg.find('.mdl-dialog__actions')
+      if (!params.actionBorder) $actions.removeClass('mdl-dialog--border')
       if (params.agree || params.disagree) {
-        const $actions = $dlg.find('.mdl-dialog__actions');
         const $agree = $actions.find('[data-name=agree]');
         const $disagree = $actions.find('[data-name=disagree]');
         $actions.removeClass('hidden');
@@ -3203,31 +3293,30 @@
      * @return {jQuery} checkbox element
      */
     checkbox: function(params){
-      params = $.extend({}, DEFAULTS.checkbox, params);
-      params.id = params.id || _.uniqueId('mdl-checkbox-');
+      params = $.extend({}, DEFAULTS.checkbox, params)
+      params.id = params.id || _.uniqueId('mdl-checkbox-')
       // for the template we need the string "checked"
       if (_.isBoolean(params.checked) && params.checked === true) {
-        params.checked = 'checked';
+        params.checked = 'checked'
       }
       else {
-        params.checked = '';
+        params.checked = ''
       }
 
-      var
-        $cbx = $(TEMPLATES.checkbox(params)),// params: id, label, checked
-        cbx = $cbx.get(0),
-        $inp = $cbx.find('input');
+      const $cbx = $(TEMPLATES.checkbox(params)) // params: id, label, checked
+      const cbx = $cbx.get(0)
+      const $inp = $cbx.find('input')
 
-      params.name && $inp.attr('name', params.name);
-      params.value && $inp.attr('value', params.value);
-      params.cls && $cbx.addClass(params.cls);
+      params.name && $inp.attr('name', params.name)
+      params.value && $inp.attr('value', params.value)
+      params.cls && $cbx.addClass(params.cls)
 
-      params.appendTo && $cbx.appendTo(params.appendTo);
-      window.componentHandler.upgradeElement(cbx);
+      params.appendTo && $cbx.appendTo(params.appendTo)
+      window.componentHandler.upgradeElement(cbx)
 
-      params.disabled && cbx.MaterialCheckbox.disable();
+      params.disabled && cbx.MaterialCheckbox.disable()
 
-      return $cbx;
+      return $cbx
     },
     checkboxFrom: function(selector, appendTo){
       var
@@ -3306,7 +3395,7 @@
      * @param {string} params.id
      * @param {string} params.title
      * @param {string} params.cls
-     * @param {(String|HTMLElement|JQuery)?} params.add
+     * @param {String?} params.add
      * @returns {HTMLElement|jQuery|undefined}
      */
     tooltip: function(params){
@@ -3326,8 +3415,8 @@
 
       // set tooltip direction class to "top"
       // if element is below half the window height
-      if (!params.cls && for_bcr.top > $(window).height() / 2) {
-        params.cls = 'mdl-tooltip--top';
+      if (!params.cls && for_bcr.top > window.innerHeight / 2) {
+        params.cls = 'mdl-tooltip--top'
       }
 
       params.appendTo = params.appendTo || 'body'
@@ -3341,15 +3430,15 @@
         $tooltip.one('mdl-componentupgraded', function() {
           // create handler which delegate the events to the original handler
           const myBoundMouseEnterHandler = function(event) {
-              this.handleMouseEnter_.call(this, event);
-            }
+            this.handleMouseEnter_.call(this, event)
+          }
           const myBoundMouseLeaveHandler = function(event) {
-              this.hideTooltip_.call(this, event);
-            }
+            this.hideTooltip_.call(this, event)
+          }
           // TODO append touch events (see material.js)
-          $(params.add)
-            .on('mouseenter', $.proxy(myBoundMouseEnterHandler, this.MaterialTooltip))
-            .on('mouseleave', $.proxy(myBoundMouseLeaveHandler, this.MaterialTooltip))
+          $(params.appendTo)
+            .on('mouseenter', params.add, $.proxy(myBoundMouseEnterHandler, this.MaterialTooltip))
+            .on('mouseleave', params.add, $.proxy(myBoundMouseLeaveHandler, this.MaterialTooltip))
         })
       }
 
@@ -3376,12 +3465,14 @@
      * @param {Boolean} params.singleLine? - select single line template
      * @param {Number} params.lines? - select three line template
      * @param {Array} params.list? - list of items to render in dropdown
+     * @param {Boolean} params.nowrap? - do not wrap item text
+     * @param {Boolean} params.nomax? - do not calc max width
      * @return {jQuery} dropdown element
      */
     dropdown: function(params){
       params = $.extend({}, DEFAULTS.dropdown, params)
       const $dropdown = $('<div/>').addClass('mdl-dropdown').appendTo(params.appendTo)
-      const  $list = $('<ul/>').addClass('mdl-dropdown__items').appendTo($dropdown)
+      const $list = $('<ul/>').addClass('mdl-dropdown__items').appendTo($dropdown)
 
       if (params.cls) $dropdown.addClass(params.cls)
 
@@ -3410,14 +3501,16 @@
         $('<li/>').append(mdlButton(o).data('item', o))
           .attr('data-val', o.value)
           .addClass(o.selected ? 'is-selected' : '')
-          .appendTo($list);
+          .appendTo($list)
       })
+
+      if (params.nowrap) $dropdown.find('.mdl-button').css('white-space', 'nowrap')
 
       $dropdown.on('click', '.mdl-button, .mdl-list__item', function() {
         const item = $(this).data('item')
-        _.isFunction(params.on.click) && params.on.click(item);
-        if (!item.stay) close();
-        return false;
+        _.isFunction(params.on.click) && params.on.click(item)
+        if (!item.stay) close()
+        return false
       })
 
       _.clickout({
@@ -3432,46 +3525,46 @@
       return $dropdown
 
       function close() {
-        $dropdown.removeClass('is-visible');
-        $dropdown.remove();
-        _.isFunction(params.on.close) && params.on.close();
+        $dropdown.removeClass('is-visible')
+        $dropdown.remove()
+        _.isFunction(params.on.close) && params.on.close()
       }
       function setPos() {
-        var
-          rect = params.element ? params.element.getBoundingClientRect() : {top: 0, left: 0},
-          // offset parent for the dropdown container
-          $parent = params.parent ? $(params.parent) : $(window),
-          // height of dropdown menu
-          mheight = $dropdown.height(),
-          // current bottom y position of the dropdown
-          bottom = $parent.height() - rect.top - mheight,
-          // take margin / padding into account
-          topgap = rect.height + params.offsetY,
-          //topgap = parseInt($(params.element).css('paddingTop'), 10) || 0,
-          // height of input control
-					iheight = 0,
-          // iheight = $(this.tf.input_).outerHeight(true),
-          // direction up or down
-          ddtop = bottom > 0 ? rect.top + topgap : rect.top - mheight + iheight,
-          ddleft = rect.left + params.offsetX,
-          onPos;
+        let rect = params.element ? params.element.getBoundingClientRect() : {top: 0, left: 0}
+        // offset parent for the dropdown container
+        let $parent = params.parent ? $(params.parent) : $(window)
+        // height of dropdown menu
+        let mheight = $dropdown.height()
+        // current bottom y position of the dropdown
+        let bottom = $parent.height() - rect.top - mheight
+        // take margin / padding into account
+        let topgap = rect.height + params.offsetY
+        // topgap = parseInt($(params.element).css('paddingTop'), 10) || 0,
+        // height of input control
+        let iheight = 0
+        // iheight = $(this.tf.input_).outerHeight(true),
+        // direction up or down
+        let ddtop = bottom > 0 ? rect.top + topgap : rect.top - mheight + iheight
+        let ddleft = rect.left + params.offsetX
+        let onPos
 
         ddtop += $parent.scrollTop()
 
         if (_.isFunction(params.on.pos)) {
-          onPos = params.on.pos(ddtop, ddleft, params.element, $dropdown);
+          onPos = params.on.pos(ddtop, ddleft, params.element, $dropdown)
           if (onPos) {
-            ddtop = onPos.top;
-            ddleft = onPos.left;
+            ddtop = onPos.top
+            ddleft = onPos.left
           }
         }
 
-        const maxWidth = $parent.width() - ddleft - 32
-        if ($dropdown.width() > maxWidth) {
+        // TODO optimize this for left or right aligned menu
+        const maxWidth = $parent.width() - ddleft - 16 + $parent.offset().left
+        if (!params.nomax && $dropdown.width() > maxWidth) {
           $dropdown.width(maxWidth)
         }
 
-        $dropdown.css({ top: ddtop, left: ddleft });
+        $dropdown.css({ top: ddtop, left: ddleft })
       }
     },
 
@@ -3612,41 +3705,41 @@
      * @return {{$article: JQuery<HTMLElement>|jQuery|HTMLElement, $layout: JQuery<HTMLElement>|jQuery|HTMLElement, $main: JQuery<HTMLElement>|jQuery|HTMLElement, $sidebar: JQuery<HTMLElement>|jQuery|HTMLElement, $content: JQuery<HTMLElement>|jQuery|HTMLElement, close: Function}}
      */
     popup: function(params){
-      params = $.extend({}, DEFAULTS.popup, params);
-      var
+      params = $.extend({}, DEFAULTS.popup, params)
+      let
         $layout,
         $article = $(TEMPLATES.article({ title: params.title || '' })),
         $content = $article.find('.material-belt-article-content'),
         $main = $article.find('.material-belt-article-main'),
-        $cells = $article.find('.mdl-cell');
+        $cells = $article.find('.mdl-cell')
 
-      !params.expandable && $article.find('.mdl-textfield--expandable').remove();
+      !params.expandable && $article.find('.mdl-textfield--expandable').remove()
 
       $main.height('calc(100vh - 64px)')
-      params.scroll && $article.find('.mdl-layout__header').addClass('mdl-layout__header--scroll');
+      params.scroll && $article.find('.mdl-layout__header').addClass('mdl-layout__header--scroll')
       // $article.find('.mdl-layout__header').css({ position: 'fixed' });
 
-      const $cell1 = $cells.eq(0).removeClass('mdl-cell--2-col').addClass('mdl-cell--' + params.gridsize[0] + '-col');
-      $cells.eq(1).removeClass('mdl-cell--8-col').addClass('mdl-cell--' + params.gridsize[1] + '-col');
-      const icon = params.hideSidebar ? 'view_compact' : 'view_stream';
+      const $cell1 = $cells.eq(0).removeClass('mdl-cell--2-col').addClass('mdl-cell--' + params.gridsize[0] + '-col')
+      $cells.eq(1).removeClass('mdl-cell--8-col').addClass('mdl-cell--' + params.gridsize[1] + '-col')
+      const icon = params.hideSidebar ? 'view_compact' : 'view_stream'
       const $toggleButton = window.material.button({
         prependTo: $article.find('.mdl-layout__header-row'),
         id: _.uniqueId('material-belt-article__toggle-'),
         label: window.material.icon(icon),
         icon: true
-      }).css({marginRight: 16}).on('click', toggleSidebar);
+      }).css({marginRight: 16}).on('click', toggleSidebar)
 
-      $content.empty();
+      $content.empty()
       if (_.isFunction(params.content)) {
-        params.content($content);
+        params.content($content)
       }
 
-      $article.appendTo('body');
-      window.componentHandler.upgradeElement($article.get(0));
-      $layout = $article.parent().css({ top: 0, zIndex: 4999 }); // NOTE dropdown menus have z-index 9999
+      $article.appendTo('body')
+      window.componentHandler.upgradeElement($article.get(0))
+      $layout = $article.parent().css({ top: 0, zIndex: 4999 }) // NOTE dropdown menus have z-index 9999
 
       if (_.isFunction(params.on.loaded)) {
-        params.on.loaded($article);
+        params.on.loaded($article)
       }
 
       if (_.isFunction(params.on.close)) {
@@ -3655,18 +3748,18 @@
             label: window.material.icon('close'),
             icon: true
           })
-          .click(function () {
-            _.isFunction(params.on.close) && params.on.close($layout);
-          });
+          .on('click', function () {
+            _.isFunction(params.on.close) && params.on.close($layout)
+          })
 
         $(document).on('keyup.popup', function(event) {
           if (event.key === 'Escape') {
             _.isFunction(params.on.close) && params.on.close($layout);
           }
-        });
+        })
       }
 
-      params.hideSidebar && $toggleButton.trigger('click');
+      params.hideSidebar && $toggleButton.trigger('click')
 
       return {
         $layout: $layout,
@@ -3677,18 +3770,18 @@
         close: function() {
           $(document).off('.popup')
           $layout.fadeOut(function() {
-            $layout.remove();
-          });
+            $layout.remove()
+          })
         }
-      };
+      }
 
       function toggleSidebar() {
         const open = $cell1.is(':visible')
-        $cell1[open ? 'hide' : 'show']();
-        $toggleButton.find('i').text(open ? 'view_compact' : 'view_stream');
+        $cell1[open ? 'hide' : 'show']()
+        $toggleButton.find('i').text(open ? 'view_compact' : 'view_stream')
         $content.removeClass('mdl-cell--' + params.gridsize[1] + '-col mdl-cell--12-col')
-            .addClass(open ? 'mdl-cell--12-col' : 'mdl-cell--' + params.gridsize[1] + '-col');
-        _.isFunction(params.on.toggle) && params.on.toggle(!open);
+            .addClass(open ? 'mdl-cell--12-col' : 'mdl-cell--' + params.gridsize[1] + '-col')
+        _.isFunction(params.on.toggle) && params.on.toggle(!open)
       }
     },
 
@@ -3737,86 +3830,102 @@
     template: function(templateName) {
       return TEMPLATES[templateName]
     }
-  };
+  }
 
   //
   // Extend jQuery Effin
   //
   $.fn.extend({
-    /**
-     * animateCss() - deferred animation from animate.css
-     * automatically remove classes after animation end
-     * support callback after animation
-     * @param {string} animationName
-     * @param {function} callback
-     */
-    animateCss: function(animationName, callback) {
-      var $el = $(this), animationClasses = 'animated ' + animationName;
-      $el.addClass(animationClasses).one(ANIMATION_END, function() {
-        $el
-          .off(ANIMATION_END)// one doesn't work on two simultan animations on one element
-          .removeClass(animationClasses);
-        _.isFunction(callback) && callback.call($el);// set callback context to our element
-      });
-      return this;
-    },
-
-    /**
-     * jQuery imagesLoaded plugin v1.1.0
-     * http://github.com/desandro/imagesloaded
-     *
-     * MIT License. by Paul Irish et al.
-     *
-     * $('#my-container').imagesLoaded(myFunction)
-     * or
-     * $('img').imagesLoaded(myFunction)
-     *
-     * execute a callback when all images have loaded.
-     * needed because .load() doesn't work on cached images
-     *
-     * callback function gets image collection as argument
-     *  `this` is the container
-     */
-    imagesLoaded: function(callback){
-      var
-        $this = this,
-        $images = $this.find('img').add($this.filter('img')),
-        len = $images.length,
-        blank = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==',
-        loaded = [];
-
-      function triggerCallback() {
-        callback.call($this, $images);
-      }
-
-      function imgLoaded(event) {
-        var img = event.target;
-        if (img.src !== blank && $.inArray(img, loaded) === -1) {
-          loaded.push(img);
-          if (--len <= 0) {
-            setTimeout(triggerCallback);
-            $images.off('.imagesLoaded', imgLoaded);
+      /**
+       * animateCss() - deferred animation from animate.css
+       * automatically remove classes after animation end
+       * support callback after animation
+       * @param {Object} options
+       * @param {String} options.animationName
+       * @param {Function|String?} options.animationSpeed
+       * @param {Function?} options.callback
+       * @returns this
+       */
+      animateCss: function ({animationName = 'bounceInOut', animationSpeed, callback}) {
+          // selector with no hits -> always call back
+          if (!this.length) {
+              _.isFunction(callback) && callback()
+              return this
           }
-        }
+
+          // remove existing animation classes
+          const $el = $(this).attr('class', function () {
+              return this.className.replace(/animate__[^ ]*|$/ig, '')
+          }).off(ANIMATION_END)
+          // build new animation class
+          let animationClasses = 'animate__animated animate__' + animationName
+          if (_.isString(animationSpeed) && animationSpeed) animationClasses += ` animate__${animationSpeed}`
+          // apply classes and wait for animation end
+          $el.addClass(animationClasses).one(ANIMATION_END, () => {
+              // one doesn't work on two simultan animations on one element
+              $el.off(ANIMATION_END).removeClass(animationClasses)
+              _.isFunction(callback) && callback.call($el) // set callback context to our element
+          })
+
+          return this
+      },
+
+      /**
+       * jQuery imagesLoaded plugin v1.1.0
+       * http://github.com/desandro/imagesloaded
+       *
+       * MIT License. by Paul Irish et al.
+       *
+       * $('#my-container').imagesLoaded(myFunction)
+       * or
+       * $('img').imagesLoaded(myFunction)
+       *
+       * execute a callback when all images have loaded.
+       * needed because .load() doesn't work on cached images
+       *
+       * callback function gets image collection as argument
+       *  `this` is the container
+       */
+      imagesLoaded: function (callback) {
+          var
+              $this = this,
+              $images = $this.find('img').add($this.filter('img')),
+              len = $images.length,
+              blank = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==',
+              loaded = [];
+
+          function triggerCallback() {
+              callback.call($this, $images);
+          }
+
+          function imgLoaded(event) {
+              var img = event.target;
+              if (img.src !== blank && $.inArray(img, loaded) === -1) {
+                  loaded.push(img);
+                  if (--len <= 0) {
+                      setTimeout(triggerCallback);
+                      $images.off('.imagesLoaded', imgLoaded);
+                  }
+              }
+          }
+
+          // if no images, trigger immediately
+          if (!len) {
+              triggerCallback();
+          }
+
+          $images.on('load.imagesLoaded error.imagesLoaded', imgLoaded).each(function () {
+              // cached images don't fire load sometimes, so we reset src.
+              var src = this.src;
+              // webkit hack from http://groups.google.com/group/jquery-dev/browse_thread/thread/eee6ab7b2da50e1f
+              // data uri bypasses webkit log warning (thx doug jones)
+              this.src = blank;
+              this.src = src;
+          });
+
+          return $this;
       }
-
-      // if no images, trigger immediately
-      if (!len) {
-        triggerCallback();
-      }
-
-      $images.on('load.imagesLoaded error.imagesLoaded', imgLoaded).each(function() {
-        // cached images don't fire load sometimes, so we reset src.
-        var src = this.src;
-        // webkit hack from http://groups.google.com/group/jquery-dev/browse_thread/thread/eee6ab7b2da50e1f
-        // data uri bypasses webkit log warning (thx doug jones)
-        this.src = blank;
-        this.src = src;
-      });
-
-      return $this;
-    }
-  });
+  })
 
   //
   // Extend Underscore
@@ -3884,29 +3993,28 @@
 
     // Set Location href or open new window for given action parameters
     open: function(action){
-      if (_.isUndefined(action)) { return; }// required
+      if (_.isUndefined(action)) return // required
 
       if (_.isString(action)) {
-        action = { href: action };
+        action = { href: action }
       }
 
-      var
-        href = action.href || _.get(action, 'bindTo.href'),
-        target = action.target || _.get(action, 'bindTo.target'),
-        winHandle;
+      const href = action.href || _.get(action, 'bindTo.href')
+      const target = action.target || _.get(action, 'bindTo.target')
+      let winHandle
 
-      if (!href) { return; }// required
+      if (!href) return // required
 
       if (target === '_blank') {
-        winHandle = window.open(href);
+        winHandle = window.open(href)
         if (winHandle) {
-          winHandle.opener = winHandle.opener || window.self;// secure "opener" for new window is set
-          winHandle.location.href = href;// set opened url as reference
-          winHandle.focus();// try to focus new window
+          winHandle.opener = winHandle.opener || window.self // secure "opener" for new window is set
+          winHandle.location.href = href // set opened url as reference
+          winHandle.focus() // try to focus new window
         }
       }
       else {
-        window.location.href = href;
+        window.location.href = href
       }
     },
 
@@ -4006,23 +4114,23 @@
         agree: false
       });
     }
-  });
+  })
 
-  window.material._VERSION = WATCHDOG.__version;
-  window.material.DEFAULTS = DEFAULTS;
+  window.material._VERSION = WATCHDOG.__version
+  window.material.DEFAULTS = DEFAULTS
 
-  window.material.TRANSPARENT = 'mdl-layout__header--transparent';
-  window.material.COLOR_BLACK = 'mdl-color--black';
-  window.material.COLOR_WHITE = 'mdl-color--white';
-  window.material.COLOR_DARKGREY = 'mdl-color--grey-800';
-  window.material.WHITE_ON_BLUE = 'mdl-color--blue-900 mdl-color-text--white';
-  window.material.WHITE_ON_BLACK = 'mdl-color--black mdl-color-text--white';
-  window.material.WHITE_ON_DARKGREY = 'mdl-color--grey-800 mdl-color-text--white';
-  window.material.WHITE_ON_GREY = 'mdl-color--grey-300 mdl-color-text--white';
-  window.material.BLACK_ON_WHITE = 'mdl-color--white mdl-color-text--black';
-  window.material.BLACK_ON_GREY = 'mdl-color--grey-300 mdl-color-text--black';
-  window.material.BLACK_ON_YELLOW = 'mdl-color--yellow-900 mdl-color-text--black';
-  window.material.WHITE_ON_LIGHTBLUE = 'mdl-color--blue-300 mdl-color-text--white';
-  window.material.WHITE_ON_LIGHTERBLUE = 'mdl-color--blue-200 mdl-color-text--white';
+  window.material.TRANSPARENT = 'mdl-layout__header--transparent'
+  window.material.COLOR_BLACK = 'mdl-color--black'
+  window.material.COLOR_WHITE = 'mdl-color--white'
+  window.material.COLOR_DARKGREY = 'mdl-color--grey-800'
+  window.material.WHITE_ON_BLUE = 'mdl-color--blue-900 mdl-color-text--white'
+  window.material.WHITE_ON_BLACK = 'mdl-color--black mdl-color-text--white'
+  window.material.WHITE_ON_DARKGREY = 'mdl-color--grey-800 mdl-color-text--white'
+  window.material.WHITE_ON_GREY = 'mdl-color--grey-300 mdl-color-text--white'
+  window.material.BLACK_ON_WHITE = 'mdl-color--white mdl-color-text--black'
+  window.material.BLACK_ON_GREY = 'mdl-color--grey-300 mdl-color-text--black'
+  window.material.BLACK_ON_YELLOW = 'mdl-color--yellow-900 mdl-color-text--black'
+  window.material.WHITE_ON_LIGHTBLUE = 'mdl-color--blue-300 mdl-color-text--white'
+  window.material.WHITE_ON_LIGHTERBLUE = 'mdl-color--blue-200 mdl-color-text--white'
 
 })(window.jQuery);

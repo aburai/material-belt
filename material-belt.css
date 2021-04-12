@@ -69,7 +69,7 @@
   background-color: #EEE;
 }
 .mdl-list__item.is-selected {
-  background-color: rgba(241, 125, 14, 0.6);
+  background-color: rgba(255, 60, 0, 0.6);
 }
 .mdl-list__item-secondary-action .material-icons {
   color: lightgray;
@@ -91,16 +91,14 @@
 .mdl-list .mdl-list__item-secondary-action .material-icons {
   color: rgba(0, 0, 0, 0.87);
 }
-.mdl-list__itemx:hover {
+.mdl-list__item:hover {
   outline: 0;
   background-color: #eee;
-  color: #000;
 }
-.mdl-list__item:hover,
-.mdl-list__item:focus {
-  outline: 2px dotted #777;
-  color: #000;
-}
+/*.mdl-list__item:focus {*/
+/*  outline: 2px dotted #777;*/
+/*  color: #000;*/
+/*}*/
 .mdl-list.mdl-list--dense .mdl-list__item {
   padding: 8px;
   min-height: 32px;
@@ -108,6 +106,24 @@
 .mdl-list.mdl-list--small .mdl-list__item {
   padding: 4px;
   min-height: 24px;
+}
+
+.mdl-list__item .mdl-list__item-primary-hint-avatar {
+  flex: 0 0 auto;
+  margin-right: 6px;
+}
+.mdl-list__item .mdl-list__item-primary-hint-content {
+  flex: 1 1 auto;
+  line-height: 24px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mdl-list__item .mdl-list__item-primary-hint {
+  flex: 0 0 auto;
+  line-height: 24px;
+  margin-left: 6px;
+  font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+  font-size: 12px;
 }
 
 .material-belt__select {
@@ -275,7 +291,6 @@
 }
 
 .mdl-login__message {
-  display: none;
   margin-top: 10px;
 }
 .mdl-login__message-text {
@@ -348,6 +363,9 @@ dialog.mdl-dialog--polyfill {
   font-weight: 500;
   color: rgba(0, 0, 0, 0.60);
 }
+.mdl-dialog .mdl-dialog__actions.mdl-dialog--border {
+    border-top: 1px solid rgba(0, 0, 0, 0.12);
+}
 
 /*
  * Helper Material Tree
@@ -391,9 +409,6 @@ dialog.mdl-dialog--polyfill {
 .mdl-chip__input:focus {
   outline: none;
 }
-.mdl-chip__action.mdl-chip__action-prefix {
-  margin: 0 4px 0 0;
-}
 .mdl-chip__action.disabled {
   cursor: default;
 }
@@ -407,12 +422,19 @@ dialog.mdl-dialog--polyfill {
 .mdl-chip.mdl-chip--dense {
   height: 24px;
   padding: 0 6px;
-  line-height: 22px;
+  line-height: 20px;
   font-size: 16px;
   font-weight: 500;
 }
 .mdl-chip.mdl-chip--dense.mdl-chip--deletable {
-  padding-left: 10px;
+  padding-left: 6px;
+  padding-right: 0;
+}
+.mdl-chip.mdl-chip--dense.mdl-chip--action-prefix {
+  padding: 0;
+}
+.mdl-chip.mdl-chip--dense .mdl-chip__action-prefix {
+  margin-left: 0;
 }
 .mdl-chip.mdl-chip--dense .mdl-chip__text {
   font-size: 12px;
@@ -1132,7 +1154,7 @@ dialog.mdl-dialog--polyfill {
   font-size: 32px;
   padding: 4px;
 }
-.mdl-drawer .mdl-list__item-sub-title {
+.mdl-drawer .mdl-list__item-sub-title.nowrap {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;

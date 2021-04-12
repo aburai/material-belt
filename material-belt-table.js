@@ -81,9 +81,12 @@
 
         window.componentHandler.upgradeElement(this.table)
 
+        if (this.params.selectable) {
+            this.$thead.find('th').first().width(32)
+        }
         if (this.params.fixedHeader && $appendTo.length) {
             this.$headclone = $('<table/>')
-                .width('calc(100% - 23px)')
+                .width('calc(100% - 8px)') // TODO calc 8px = scrollbar width
                 .addClass(this.$table.attr('class'))
                 .addClass('mdl-data-table__fixed-header')
                 .append(this.$thead.clone())
@@ -101,8 +104,12 @@
             let isFixed = false
             const $hc = this.$headclone
             $hc.on('change', '.mdl-data-table__select .mdl-checkbox__input', event => {
-                // TODO sync header checkbox
-                // this.table.MaterialDataTable.headerCheckbox.click()
+                const isChecked = event.target.checked
+                this.toggle(this.table.MaterialDataTable.headerCheckbox, !isChecked)
+                this.$tbody.find('.mdl-data-table__select.mdl-checkbox').each((i, el) => {
+                    this.toggle(el, !isChecked)
+                })
+                _.isFunction(mtable.params.on.change) && mtable.params.on.change.call(this, isChecked)
             })
             const _throttledScrollHandler = _.throttle(event => {
                 const scrollTop = event.target.scrollTop
@@ -110,6 +117,7 @@
                     if (!isFixed) {
                         isFixed = true
                         $appendTo.css({marginTop: 32})
+                        this.syncHeader()
                         $hc.show()
                     }
                 }
@@ -145,14 +153,13 @@
                 const $tr = $this.parents('tr:first')
                 const index = mtable.$tbody.children().index($tr)
                 const data = mtable.params.td[index]
-                _.isFunction(mtable.params.on.change) && mtable.params.on.change.call(this, $tr, data, index, checked)
+                const payload = [{$tr, data, index, checked}]
+                _.isFunction(mtable.params.on.change) && mtable.params.on.change.call(this, payload)
             })
-            // this.$thead.on('change', '.mdl-data-table__select', function () {
-            //   const isChecked = $(this).is('.is-checked')
-            //   mtable.rows().find('.mdl-data-table__select').each(function () {
-            //     this.MaterialCheckbox[isChecked ? 'check' : 'uncheck']()
-            //   })
-            // })
+            this.$thead.on('change', '.mdl-data-table__select', function () {
+                const isChecked = $(this).is('.is-checked')
+                _.isFunction(mtable.params.on.change) && mtable.params.on.change.call(this, isChecked)
+            })
         }
     }
 
@@ -242,16 +249,38 @@
 
     MTable.prototype.syncHeader = function () {
         _.defer(() => {
+            const hasCheckbox = !!this.params.selectable
             const $headCells = this.$headclone.find('thead tr > th')
             this.$thead.find('tr > th').each((i, el) => {
-                $headCells.eq(i).outerWidth(el.clientWidth)
+                const $el = $(el)
+                let width = $el.width()
+                if (hasCheckbox) {
+                    if (i === 0) width = 32
+                    else width = this.params.th[i - 1].width || width
+                }
+                else {
+                    width = this.params.th[i].width || width
+                }
+                if (width > 0) {
+                    $el.width(width)
+                    $headCells.eq(i).width(width)
+                }
             })
         })
     }
 
+    MTable.prototype.toggle = function (el, checked) {
+        const mcbx = el ? el.MaterialCheckbox : null
+        if (mcbx) mcbx[checked ? 'uncheck' : 'check']()
+    }
     MTable.prototype.toggleAll = function () {
-        this.table.MaterialDataTable.headerCheckbox.click()
-        this.tableHeadClone.MaterialDataTable.headerCheckbox.click()
+        const ohcbx = this.table.MaterialDataTable.headerCheckbox.MaterialCheckbox
+        const isChecked = ohcbx.inputElement_.checked
+        this.toggle(this.table.MaterialDataTable.headerCheckbox, isChecked)
+        this.toggle(this.tableHeadClone.MaterialDataTable.headerCheckbox, isChecked)
+        this.$tbody.find('.mdl-data-table__select').each((i, el) => {
+            this.toggle(el, isChecked)
+        })
     }
 
     MTable.prototype.clear = function () {
